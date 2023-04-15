@@ -115,7 +115,7 @@ useEffect(()=>{
 
           {/* stats part */}
           <div className=" gap-1 flex w-full mt-3 px-4 justify-between m-0 p-0">
-            <div className="bg-white gap-3 px-4 rounded-2xl py-2 flex flex-row">
+            <div className="bg-white gap-3 px-6 rounded-2xl py-2 flex flex-row">
               <div className="flex justify-center items-center gap-3">
                 <div className="flex ml-0 gap-3 ">
                   <div className="align-center">
