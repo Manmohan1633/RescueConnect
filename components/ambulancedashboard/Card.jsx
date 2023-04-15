@@ -43,7 +43,7 @@ export default function Card() {
     return (
       
         <div
-          className=" h-full mr-0 mt-3 flex-flex-col bg-[#fff0] "
+          className=" h-full mr-0 flex-flex-col bg-[#fff0] "
           style={{ flex: 3 }}
         >
           {markerData.slice(0,2).map((obj) => (

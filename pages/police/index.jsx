@@ -25,7 +25,7 @@ export default function index() {
           </div>
         </header>
       </main>
-      <aside class="flex flex-col gap-y-6 pt-6 pr-6 w-96">
+      <aside class="flex flex-col gap-y-6 pt-6 pr-6 w-[30rem]">
         <MostOrdered />
       </aside>
     </div>

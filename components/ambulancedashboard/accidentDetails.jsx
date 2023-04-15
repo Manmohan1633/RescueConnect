@@ -1,32 +1,28 @@
 import React from "react";
-import mapboxgl from 'mapbox-gl';
+import mapboxgl from "mapbox-gl";
 
 export default function AccidentsDetails({ tittle, loc, time, status }) {
+  //     const ACCESS_TOKEN = 'pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ';
+  // const geocoder = new MapboxGeocoder({
+  //     accessToken: ACCESS_TOKEN
+  // });
 
-//     const ACCESS_TOKEN = 'pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ';
-// const geocoder = new MapboxGeocoder({
-//     accessToken: ACCESS_TOKEN
-// });
+  // // Reverse geocode a set of coordinates
+  // geocoder.reverseGeocode({
+  //     query: [-122.42, 37.78]
+  // }).then(function(result) {
+  //     // Extract the location information from the response
+  //     const location = result.features[0].place_name;
+  //     console.log(location);
+  //     // Output: 1550 Bryant St, San Francisco, California 94103, United States
+  // });
 
-
-
-// // Reverse geocode a set of coordinates
-// geocoder.reverseGeocode({
-//     query: [-122.42, 37.78]
-// }).then(function(result) {
-//     // Extract the location information from the response
-//     const location = result.features[0].place_name;
-//     console.log(location);
-//     // Output: 1550 Bryant St, San Francisco, California 94103, United States
-// });
-
-
-
-    return (
-      <button className="w-full  px-3 ">
-        <div className=" rounded-lg  m-0 h-40 p-0">
-          <div className=" bg-[#fff0] hover:bg-[#fff1] h-full flex w-full  border-grey-500 mt-2  mr-2 items-center border-2  justify-around py-1 border-grey-500">
-            <div className="flex flex-col px-2  items-stretch  w-full ">
+  return (
+    <button className="w-full mb-2  ">
+      <div className="flex flex-col  w-full h-36 gap-4 border-2 border-white px-2">
+        <div className=" rounded-lg  m-0 p-0">
+          <div className=" bg-[#fff0] hover:bg-[#fff1] h-full flex w-full  border-grey-500 mt-2  mr-2 items-center  justify-around py-1 border-grey-500">
+            <div className="flex flex-col px-2 ml-2 items-stretch  w-full ">
               <div className="flex   text-white py-1 ">
                 <h3 className="font-sans  bg-teal-900 text-xs font-normal tracking-wide ">
                   {status ? status : "NEW"}
@@ -37,7 +33,7 @@ export default function AccidentsDetails({ tittle, loc, time, status }) {
               </h2>
             </div>
 
-            <div className="flex  w-full ">
+            <div className="flex items-center justify-center  w-full ">
               <svg
                 width="20px"
                 height="20px"
@@ -55,15 +51,10 @@ export default function AccidentsDetails({ tittle, loc, time, status }) {
                   fill="#808080"
                 />
               </svg>
-              <div className="flex-col items-center justify-between">
-                <h3 className="font-sans text-sm font-semibold tracking-wide text-white ml-1 text-start ">
-                  Time
-                </h3>
 
-                <h2 className="font-sans  font-semibold tracking-wide text-white ml-1">
-                  {time?.substr(11, 8)}
-                </h2>
-              </div>
+              <h2 className="font-sans  font-semibold tracking-wide text-white ml-1">
+                {time?.substr(11, 8)}
+              </h2>
             </div>
 
             <div className="flex  mx-3 ">
@@ -93,23 +84,23 @@ export default function AccidentsDetails({ tittle, loc, time, status }) {
                 </h2>
               </div>
             </div>
-
-            <svg
-              width="40px"
-              height="40px"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className="mb-3"
-            >
-              <path
-                d="M19.159 16.767l0.754-0.754-6.035-6.035-0.754 0.754 5.281 5.281-5.256 5.256 0.754 0.754 3.013-3.013z"
-                fill="#878787"
-              ></path>
-            </svg>
           </div>
         </div>
-      </button>
-    );
 
+        <div className=" w-full h-full  ">
+          <button class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
+            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+              Ateend{" "}
+            </span>
+          </button>
+
+          {/* <button class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
+            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
+              Completed{" "}
+            </span>
+          </button> */}
+        </div>
+      </div>
+    </button>
+  );
 }
