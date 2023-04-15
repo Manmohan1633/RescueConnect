@@ -7,20 +7,20 @@ import Map from "../../components/map/mapadmin";
 export default function index() {
   const date = Date();
   return (
-    <div class="flex flex-col sm:flex-row w-full min-h-screen font-sans bg-gray-800">
+    <div class="flex flex-col sm:flex-row w-full min-h-screen font-sans bg-slate-900">
       <Sidebar />
       <main class="flex flex-col flex-1 gap-6 p-4">
         <header className="h-[75%]">
           <div className="px-5">
-            <h1 class="text-3xl ml-1 font-semibold leading-loose text-red-400">
+            <h1 class="text-4xl ml-1 font-semibold leading-loose text-red-400">
               Police Dashboard
             </h1>
             <div class="text-gray-400 ml-1 mb-6">{date}</div>
           </div>
-          <div className="px-5">
+          <div className="px-5 shadow-sm">
             <StatsCard />
           </div>
-          <div className="relative -mt-16 h-full w-full flex m-0 p-0 shadow-md rounded-2xl">
+          <div className="relative -mt-10 h-full w-full flex m-0 p-0 shadow-md rounded-2xl">
             <Map />
           </div>
         </header>

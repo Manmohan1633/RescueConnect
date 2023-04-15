@@ -57,7 +57,7 @@ function StatsCard({ stat }) {
     );
 
   return (
-    <div className="flex flex-col p-4 w-1/3 bg-gray-900 rounded-lg z-50 gap-y-3">
+    <div className="flex flex-col p-3 w-1/3 bg-gray-900 rounded-lg z-50 gap-y-3">
       <div className="flex items-center gap-x-3">
         <div className="flex items-center gap-4 ">
           <div className="">
@@ -75,7 +75,7 @@ function StatsCard({ stat }) {
               {stat.title}
             </div>
 
-            <div className="text-3xl font-semibold text-white">
+            <div className="text-xl font-semibold text-white">
               {stat.value}
             </div>
           </div>
