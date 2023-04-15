@@ -4,7 +4,7 @@ import Loader from "../components/loader/Loader";
 import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useAuth } from "../context/AuthContext";
-import Dashboard from "./dashboard";
+// import Dashboard from "./dashboard";
 
 const Login = dynamic(() => import("../components/auth/Login"), {
   ssr: false,
@@ -13,7 +13,7 @@ const Login = dynamic(() => import("../components/auth/Login"), {
 const login = () => {
   const { user, logout } = useAuth();
   if (user) {
-    return <Dashboard />;
+    return <Login />;
   } else {
     return <Login />;
   }
