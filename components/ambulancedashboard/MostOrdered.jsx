@@ -4,7 +4,7 @@ import Card from './Card'
 
 export default function MostOrdered() {
   return (
-    <div class="flex flex-col p-6 px-2 bg-gray-900 rounded-lg gap-y-6">
+    <div class="flex flex-col p-6 px-2 bg-gray-900 rounded-lg gap-y-4">
       <div class="flex px-6 justify-between items-center">
         <h2 class="text-xl font-semibold leading-loose text-white">
           Recent accidents
