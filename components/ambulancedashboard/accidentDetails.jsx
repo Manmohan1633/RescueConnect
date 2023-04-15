@@ -23,12 +23,12 @@ export default function AccidentsDetails({ tittle, loc, time, status }) {
 
 
     return (
-      <button className="w-full px-3 ">
-        <div className="border-l-4 rounded-lg border-teal-300 m-0 p-0">
-          <div className=" bg-[#fff0] hover:bg-[#fff0] flex w-full  border-grey-500 mt-2  mr-1 items-center border-2  justify-around py-1 border-grey-500">
-            <div className="flex flex-col px-3  items-stretch h-full w-full ">
-              <div className="flex  text-white py-1 ">
-                <h3 className="font-sans  text-xs font-normal tracking-wide ">
+      <button className="w-full  px-3 ">
+        <div className=" rounded-lg  m-0 h-40 p-0">
+          <div className=" bg-[#fff0] hover:bg-[#fff1] h-full flex w-full  border-grey-500 mt-2  mr-2 items-center border-2  justify-around py-1 border-grey-500">
+            <div className="flex flex-col px-2  items-stretch  w-full ">
+              <div className="flex   text-white py-1 ">
+                <h3 className="font-sans  bg-teal-900 text-xs font-normal tracking-wide ">
                   {status ? status : "NEW"}
                 </h3>
               </div>

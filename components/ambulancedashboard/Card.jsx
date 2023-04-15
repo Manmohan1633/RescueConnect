@@ -18,7 +18,7 @@ export default function Card() {
 
        const fetchPost = async () => {
          const db = getFirestore();
-         await getDocs(collection(db, "accidents")).then((querySnapshot) => {
+         await getDocs(collection(db, "fire")).then((querySnapshot) => {
            const newData = querySnapshot.docs.map((doc) => ({
              ...doc.data(),
              id: doc.id,
@@ -46,7 +46,7 @@ export default function Card() {
           className=" h-full mr-0 mt-3 flex-flex-col bg-[#fff0] "
           style={{ flex: 3 }}
         >
-          {markerData.map((obj) => (
+          {markerData.slice(0,2).map((obj) => (
             <AccidentsDetails
               tittle={obj.tittle}
               time={obj.datetime}
