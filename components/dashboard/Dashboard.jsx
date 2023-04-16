@@ -16,41 +16,24 @@ export default function Dashboard() {
   console.log(user.phonenumber);
   const dbInstance = collection(database, "users");
 
-  const saveNote = () => {
-    addDoc(dbInstance, {
-      you: "you go and fuck",
-      mobile: user.phonenumber,
-    });
-  };
-
-  // const rootRef = ref(db);
-  // onValue(rootRef, (snapshot) => {
-  //   const data = snapshot.val();
-  //   console.log(data);
-  // });
 
   const rootRef = ref(db);
-  const temperatureRef = child(rootRef, "DHT11");
-  const temp = child(temperatureRef, "Temperature");
+   const temperatureRef = child(rootRef, "data");
+  const temp = child(temperatureRef, "firee");
   const [tempr, setTempr] = useState(null);
 
-  // onValue(temp, (snapshot) => {
-  //   const temp = snapshot.val();
-  //   console.log(Object.values(temp));
-  //   // setTempr(Object.values(temp));
-  //   // console.log(tempr);
-  //   setTempr(latestTemp);
 
-  // })
+  
+  useEffect(() => {
+    onValue(temp, (snapshot) => {
+      console.log(snapshot.val(),"onn work aayo")
+      const tempVal = snapshot.val();
+      const latestTemp =
+        Object.values(tempVal)[Object.values(tempVal).length - 1];
+      setTempr(latestTemp);
+    });
+  }, [temp]);
 
-  // useEffect(() => {
-  //   onValue(temp, (snapshot) => {
-  //     const tempVal = snapshot.val();
-  //     const latestTemp =
-  //       Object.values(tempVal)[Object.values(tempVal).length - 1];
-  //     setTempr(latestTemp);
-  //   });
-  // }, [temp]);
 
   const initialValues = {
     tittle: "Fire accident",
@@ -73,29 +56,31 @@ export default function Dashboard() {
   }
 
   const [cou,setCou]=useState(0);
-  // useEffect(() => {
-  //   // if (tempr != null) {
-  //   // setTempr(29.87)
+
+
+  useEffect(() => {
+    // if (tempr != null) {
+    // setTempr(29.87)
   
-  //   // console.log(tempInCelsius);
-  //   console.log(tempr?.slice(0, 2));
+    // console.log(tempInCelsius);
+    console.log(tempr,"hello");
     
-  //   if ((tempr?.slice(0, 2)) === "28") {
-  //     if (cou == 0) {
-  //       console.log("fire");
-  //       // // send sms to user
-  //       const dbInstance = collection(database, "accidents");
+    // if ((tempr?.slice(0, 2)) === "28") {
+    //   if (cou == 0) {
+    //     console.log("fire");
+    //     // // send sms to user
+    //     const dbInstance = collection(database, "accidents");
 
-  //       console.log(initialValues);
-  //       addDoc(dbInstance, {
-  //         ...initialValues,
-  //       });
-  //                   setCou(1);
+    //     console.log(initialValues);
+    //     addDoc(dbInstance, {
+    //       ...initialValues,
+    //     });
+    //                 setCou(1);
 
-  //     }
-  //   }
+    //   }
+    // }
 
-  // }, [tempr]);
+  }, [tempr]);
 
   return (
     <main className="flex flex-col m-0 p-0 bg-white h-screen">

@@ -1,7 +1,10 @@
 import React from "react";
-import mapboxgl from "mapbox-gl";
+import { doc, updateDoc } from "firebase/firestore";
+import { app, database } from "../../config/firebase";
 
-export default function AccidentsDetails({ tittle, loc, time, status }) {
+
+
+export default function AccidentsDetails({ tittle, loc, time, status,id }) {
   //     const ACCESS_TOKEN = 'pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ';
   // const geocoder = new MapboxGeocoder({
   //     accessToken: ACCESS_TOKEN
@@ -17,9 +20,31 @@ export default function AccidentsDetails({ tittle, loc, time, status }) {
   //     // Output: 1550 Bryant St, San Francisco, California 94103, United States
   // });
 
+
+
+
+// Set the "capital" field of the city 'DC'
+const handleClick = async () => {
+
+    console.log("function start")
+ 
+    // Get a reference to the "DC" document in the "cities" collection
+    const washingtonRef = doc(database, "fire", id);
+
+    // Set the "capital" field of the "DC" document to true
+    await updateDoc(washingtonRef, {
+      status: "DONE"
+    });
+
+    window.location.reload(false);
+
+  }
+
+
+
   return (
     <button className="w-full mb-2  ">
-      <div className="flex flex-col  w-full h-36 gap-4 border-2 border-white px-2">
+      <div className="flex flex-col  w-full h-full gap-4 border-2 border-white px-2">
         <div className=" rounded-lg  m-0 p-0">
           <div className=" bg-[#fff0] hover:bg-[#fff1] h-full flex w-full  border-grey-500 mt-2  mr-2 items-center  justify-around py-1 border-grey-500">
             <div className="flex flex-col px-2 ml-2 items-stretch  w-full ">
@@ -88,17 +113,13 @@ export default function AccidentsDetails({ tittle, loc, time, status }) {
         </div>
 
         <div className=" w-full h-full  ">
-          <button class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-500 to-rose-500 group-hover:from-red-500 group-hover:to-rose-500 hover:text-white dark:text-white">
+          <button onClick={handleClick} class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-500 to-rose-500 group-hover:from-red-500 group-hover:to-rose-500 hover:text-white dark:text-white">
             <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-              Ateend{" "}
+              Attend{" "}
             </span>
           </button>
 
-          {/* <button class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-cyan-500 to-blue-500 group-hover:from-cyan-500 group-hover:to-blue-500 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-cyan-200 dark:focus:ring-cyan-800">
-            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-              Completed{" "}
-            </span>
-          </button> */}
+         
         </div>
       </div>
     </button>

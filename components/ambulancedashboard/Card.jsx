@@ -48,6 +48,7 @@ export default function Card() {
         >
           {markerData.slice(0,2).map((obj) => (
             <AccidentsDetails
+              id={obj.id}
               tittle={obj.tittle}
               time={obj.datetime}
               status={obj.status}
@@ -59,3 +60,5 @@ export default function Card() {
        
     );
 }
+
+
