@@ -338,11 +338,13 @@ function Map() {
         "bottom-right"
       );
 
+      let el = document.createElement("div");
       const markers = markerData.map((obj) => {
-        console.log(obj.location?.longitude,"myreeee")
-        if (obj.location?.latitude && obj.policehelp === true) {
-          return new mapboxgl.Marker({ color: "#ff0000" })
-            .setLngLat([obj?.location?.longitude, obj?.location?.latitude])
+        el = document.createElement("div");
+        el.className = "marker";
+        if (obj.location?.latitude) {
+          return new mapboxgl.Marker(el)
+            .setLngLat([obj.location.longitude, obj.location.latitude])
             .setPopup(
               new mapboxgl.Popup({ closeOnClick: false }).setHTML(
                 ReactDOMServer.renderToString(
@@ -353,7 +355,6 @@ function Map() {
             .addTo(map);
         }
       });
-
       // const markers = markerData?.map((obj) => {
       //   console.log(obj.location.latitude)
       // });

@@ -61,7 +61,7 @@ export default function Login() {
         console.log(res);
         setUser(res.user);
         setLoading(false);
-        router.push("/dashboard");
+        router.push("/ambulance");
       })
       .catch((err) => {
         console.log(err);

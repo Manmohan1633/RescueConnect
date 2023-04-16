@@ -10,11 +10,7 @@ export default function Home() {
             <div className="flex items-center justify-between h-16 lg:h-20">
               <div className="flex-shrink-0">
                 <a href="#" title="" className="flex">
-                  <img
-                    className="w-auto h-8"
-                    src="/images/logo.png"
-                    alt=""
-                  />
+                  <img className="w-auto h-8" src="/images/logo.png" alt="" />
                 </a>
               </div>
 
@@ -118,13 +114,15 @@ export default function Home() {
               </div>
 
               <div className="relative px-4 pt-24 pb-16 text-center sm:px-6 md:px-24 2xl:px-32 lg:py-24 lg:text-left">
-                <h1 className="text-2xl font-bold text-black sm:text-6xl xl:text-6xl">
+                <h1 className="text-2xl font-body font-bold  text-black sm:text-6xl xl:text-6xl">
                   Rapid Responses For
-                  <br />
+                </h1>{" "}
+                <h1 className="text-2xl mt-4 font-body font-bold  text-black sm:text-6xl xl:text-6xl">
                   Safer Communities
                 </h1>
-                <p className="mt-8 text-xl text-black">
-                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Nam quis enim nesciunt odio 
+                <p className="mt-8 text-xl font-body text-black">
+                  Building safer communities through education and preparation.
+                  Protecting what matters most - you and your loved ones.{" "}
                 </p>
                 <div className="mt-10 sm:flex sm:items-center sm:space-x-8">
                   <Link
@@ -138,8 +136,6 @@ export default function Home() {
                   </Link>
                 </div>
               </div>
-
-             
             </div>
 
             <div className="relative w-full overflow-hidden lg:order-1 h-96 lg:h-auto lg:w-5/12">
@@ -156,7 +152,6 @@ export default function Home() {
           </div>
         </section>
       </div>
-
     </>
   );
 }

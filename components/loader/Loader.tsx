@@ -5,7 +5,7 @@ export default function Loader() {
       <div className='h-screen w-screen fixed flex justify-center items-center'>
       <svg
         fill="none"
-        className="h-16 w-16 animate-spin text-blue-900"
+        className="h-16 w-16 animate-spin text-white"
         viewBox="0 0 32 32"
         xmlns="http://www.w3.org/2000/svg"
       >

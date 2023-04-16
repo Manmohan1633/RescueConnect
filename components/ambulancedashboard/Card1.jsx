@@ -18,7 +18,7 @@ export default function Card() {
 
        const fetchPost = async () => {
          const db = getFirestore();
-         await getDocs(collection(db, "accidents")).then((querySnapshot) => {
+         await getDocs(collection(db, "fire")).then((querySnapshot) => {
            const newData = querySnapshot.docs.map((doc) => ({
              ...doc.data(),
              id: doc.id,

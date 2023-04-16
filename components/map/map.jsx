@@ -49,7 +49,6 @@ function Map() {
         ...doc.data(),
         id: doc.id,
       }));
-      console.log("hiii",newData[0].location)
       setmarkerData(newData);
       setLocation(
         newData

@@ -25,7 +25,7 @@ export default function Sidebar() {
         </Link>{" "}
       </button>
       <div className="flex flex-col gap-y-4 items-end self-end">
-        <div className="hover:bg-gray-800rounded-l-xl relative before:absolute before:w-4 before:h-8 before:-top-8 before:rounded-br-xl before:right-0 before:shadow-inverse-top  after:absolute after:w-4 after:h-8 after:-bottom-8 after:rounded-tr-xl after:right-0 after:shadow-inverse-bottom">
+        <div className="hover:bg-gray-800 rounded-l-xl relative before:absolute before:w-4 before:h-8 before:-top-8 before:rounded-br-xl before:right-0 before:shadow-inverse-top  after:absolute after:w-4 after:h-8 after:-bottom-8 after:rounded-tr-xl after:right-0 after:shadow-inverse-bottom">
           <Link href="/ambulance">
             <button className="p-4 my-4 mr-4 ml-3 rounded-xl ">
               <img src="https://img.icons8.com/ios-glyphs/40/ffffff/home-page--v1.png" />{" "}
@@ -33,22 +33,18 @@ export default function Sidebar() {
           </Link>
         </div>
         <div className="bg-gray-800 rounded-l-xl relative before:absolute before:w-4 before:h-8 before:-top-8 before:rounded-br-xl before:right-0 before:shadow-inverse-top  after:absolute after:w-4 after:h-8 after:-bottom-8 after:rounded-tr-xl after:right-0 after:shadow-inverse-bottom">
+         
           <Link href="/ambulance/list">
             <button className="p-4 my-4 mr-4 ml-3 rounded-xl ">
               <img src="https://img.icons8.com/ios-filled/50/ffffff/traffic-accident.png" />{" "}
             </button>
           </Link>{" "}
-          <Link href="/ambulance/list">
-            <button className="p-4 my-4 mr-4 ml-3 rounded-xl ">
-              <img src="https://img.icons8.com/ios-filled/50/ffffff/traffic-accident.png" />{" "}
-            </button>
-          </Link>{" "}
+          </div>
           <div className="hover:bg-gray-800 rounded-l-xl relative before:absolute before:w-4 before:h-8 before:-top-8 before:rounded-br-xl before:right-0 before:shadow-inverse-top  after:absolute after:w-4 after:h-8 after:-bottom-8 after:rounded-tr-xl after:right-0 after:shadow-inverse-bottom">
             <button onClick={logout} className="p-4 my-4 mr-4 ml-3 rounded-xl ">
               <img src="https://img.icons8.com/ios-filled/50/ffffff/logout-rounded.png" />{" "}
             </button>
           </div>
-        </div>
       </div>
     </div>
   );
