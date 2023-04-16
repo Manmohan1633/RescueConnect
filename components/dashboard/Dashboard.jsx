@@ -16,24 +16,51 @@ export default function Dashboard() {
   console.log(user.phonenumber);
   const dbInstance = collection(database, "users");
 
-
-  const rootRef = ref(db);
-   const temperatureRef = child(rootRef, "data");
-  const temp = child(temperatureRef, "firee");
-  const [tempr, setTempr] = useState(null);
-
-
+const rootRef = ref(db);
+const temp = child(rootRef, "data");
+// const temp = child(temperatureRef, "firee");
+const [tempr, setTempr] = useState(null);
+  console.log("temoerature raw", temp);
   
-  // useEffect(() => {
-  //   onValue(temp, (snapshot) => {
-  //     console.log(snapshot.val(),"onn work aayo")
-  //     const tempVal = snapshot.val();
-  //     const latestTemp =
-  //       Object.values(tempVal)[Object.values(tempVal).length - 1];
-  //     setTempr(latestTemp);
-  //   });
-  // }, [temp]);
+  useEffect(() => {
+    onValue(temp, (snapshot) => {
+      const tempVal = snapshot.val();
+      console.log(tempVal,"value of temp")
+      const latestTemp =
+        Object.values(tempVal);
+      setTempr(latestTemp);
+      console.log(latestTemp,"what")
+    });
+  }, [temp]);
 
+// useEffect(() => {
+//   const unsubscribe = onValue(temp, (snapshot) => {
+//     const value = snapshot.val();
+//     setTempr(value);
+//     console.log(temperatureRef);
+//     if (value === 1) {
+//       temperatureRef.once("value", (snapshot) => {
+//         const value = snapshot.val();
+//         if (value === 1) {
+//           console.log("Fire detected!");
+//         }
+//       });
+//     }
+//   });
+//   return () => {
+//     unsubscribe();
+//   };
+// }, [temperatureRef]);
+
+// useEffect(() => {
+//   onValue(temperatureRef, (snapshot) => {
+//     console.log(snapshot.val(), "onn work aayo");
+//     const tempVal = snapshot.val();
+//     const latestTemp =
+//       Object?.values(tempVal)[Object?.values(tempVal).length - 1];
+//     setTempr(latestTemp);
+//   });
+// }, [temperatureRef]);
 
   const initialValues = {
     tittle: "Fire accident",
@@ -55,30 +82,12 @@ export default function Dashboard() {
     return currentDate.toISOString(); // return date in ISO format (e.g. "2023-03-06T12:30:00.000Z")
   }
 
-  const [cou,setCou]=useState(0);
 
 
   useEffect(() => {
-    // if (tempr != null) {
-    // setTempr(29.87)
   
-    // console.log(tempInCelsius);
     console.log(tempr,"hello");
-    
-    // if ((tempr?.slice(0, 2)) === "28") {
-    //   if (cou == 0) {
-    //     console.log("fire");
-    //     // // send sms to user
-    //     const dbInstance = collection(database, "accidents");
-
-    //     console.log(initialValues);
-    //     addDoc(dbInstance, {
-    //       ...initialValues,
-    //     });
-    //                 setCou(1);
-
-    //   }
-    // }
+  
 
   }, [tempr]);
 
