@@ -21,7 +21,7 @@ export default function Sidebar() {
     <div className="flex flex-col gap-y-4 items-center py-8 w-24 bg-gray-900">
       <button className="p-2 bg-opacity-20 rounded-xl bg-primary">
         <Link href="/">
-          <img src="/logo-icon.png" />
+          <img src="/logo.png" />
         </Link>{" "}
       </button>
       <div className="flex flex-col gap-y-4 items-end self-end">

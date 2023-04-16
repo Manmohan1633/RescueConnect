@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../sidebar/Sidebar";
 import Accidents from "../accidents/accidents1";
 import Link from "next/link";
 import AddDistress from "../button/AddDistress";
 import { useAuth } from "../../context/AuthContext";
 import { useRouter } from "next/router";
-import { app, database } from "../../config/firebase";
+import { app, database, db } from "../../config/firebase";
 import { collection, addDoc } from "firebase/firestore";
+import Map from "../map/map";
+import { getDatabase, ref, onValue, child } from "firebase/database";
 
 export default function Dashboard() {
   const { user, currentUser, logout } = useAuth();
@@ -14,22 +16,75 @@ export default function Dashboard() {
   console.log(user.phonenumber);
   const dbInstance = collection(database, "users");
 
-  const saveNote = () => {
-    addDoc(dbInstance, {
-      you: "you go and fuck",
-      mobile: user.phonenumber,
-    });
+  const rootRef = ref(db);
+  const temperatureRef = child(rootRef, "data");
+  const temp = child(temperatureRef, "firee");
+  const [tempr, setTempr] = useState(null);
+
+  // useEffect(() => {
+  //   onValue(temp, (snapshot) => {
+  //     console.log(snapshot.val(),"onn work aayo")
+  //     const tempVal = snapshot.val();
+  //     const latestTemp =
+  //       Object.values(tempVal)[Object.values(tempVal).length - 1];
+  //     setTempr(latestTemp);
+  //   });
+  // }, [temp]);
+
+  const initialValues = {
+    tittle: "Fire accident",
+    description: "A big building got large fire",
+    intensity: "7",
+    location: { latitude: 10.0261, longitude: 76.3125 },
+    image:
+      "https://bsmedia.business-standard.com/_media/bs/img/article/2022-05/13/full/1652462127-1638.jpg?im=Resize,width=480",
+    datetime: getCurrentDate(),
+    policehelp: true,
+    firehelp: true,
+    ambulancehelp: false,
+    otherhelp: false,
+    imageurl: "",
+    status: "NEW",
   };
+  function getCurrentDate() {
+    const currentDate = new Date();
+    return currentDate.toISOString(); // return date in ISO format (e.g. "2023-03-06T12:30:00.000Z")
+  }
+
+  const [cou, setCou] = useState(0);
+
+  useEffect(() => {
+    // if (tempr != null) {
+    // setTempr(29.87)
+
+    // console.log(tempInCelsius);
+    console.log(tempr, "hello");
+
+    // if ((tempr?.slice(0, 2)) === "28") {
+    //   if (cou == 0) {
+    //     console.log("fire");
+    //     // // send sms to user
+    //     const dbInstance = collection(database, "accidents");
+
+    //     console.log(initialValues);
+    //     addDoc(dbInstance, {
+    //       ...initialValues,
+    //     });
+    //                 setCou(1);
+
+    //   }
+    // }
+  }, [tempr]);
 
   return (
-    <main className="flex flex-col m-0 p-0 bg-white  rounded-2xl h-screen">
-      <header className="z-40 items-center w-full h-16 bg-white  border-b-2 border-gray-200 shadow-sm mt-2">
+    <main className="flex flex-col m-0 p-0 bg-white h-screen">
+      <header className="z-40 items-center w-full h-16  bg-white  border-b-0 border-gray-200  py-8">
         <div className="relative z-20 flex flex-col justify-center h-full px-3 mx-auto flex-center">
           <div className="relative flex items-center w-full pl-1 lg:max-w-68 sm:pr-2 sm:ml-0">
             <div className="container relative left-0 z-50 flex w-3/4 h-full">
               <Link href="/">
                 {" "}
-                <img src="/logo.png" alt="logo" className="w-40 " />
+                <img src="/logof.png" alt="logo" className="w-48 mt-2 " />
               </Link>
             </div>
 
@@ -98,18 +153,20 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className=" flex  h-full  p-0.5">
-        <div className="flex w-64 m-0 p-0" style={{ flex: 0.5 }}>
+      <div className=" flex mt-2 gap-2  min-h-full flex-col sm:flex-row  p-0.5">
+        <div className="flex w-full sm:w-64 m-0 p-0" style={{ flex: 0.6 }}>
           <Sidebar />
         </div>
 
-      
+        <div className="flex relative  flex-col px-2 " style={{ flex: 4 }}>
+          <Accidents></Accidents>
+        </div>
 
         <div
-          className=" relative flex flex-col t-0  m-0 p-0  shadow-md  rounded-2xl "
+          className=" relative flex flex-col  m-0 p-0  shadow-md  rounded-2xl "
           style={{ flex: 6 }}
         >
-          <Accidents></Accidents>
+          <Map />
         </div>
       </div>
     </main>

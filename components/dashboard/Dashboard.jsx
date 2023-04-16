@@ -24,15 +24,15 @@ export default function Dashboard() {
 
 
   
-  useEffect(() => {
-    onValue(temp, (snapshot) => {
-      console.log(snapshot.val(),"onn work aayo")
-      const tempVal = snapshot.val();
-      const latestTemp =
-        Object.values(tempVal)[Object.values(tempVal).length - 1];
-      setTempr(latestTemp);
-    });
-  }, [temp]);
+  // useEffect(() => {
+  //   onValue(temp, (snapshot) => {
+  //     console.log(snapshot.val(),"onn work aayo")
+  //     const tempVal = snapshot.val();
+  //     const latestTemp =
+  //       Object.values(tempVal)[Object.values(tempVal).length - 1];
+  //     setTempr(latestTemp);
+  //   });
+  // }, [temp]);
 
 
   const initialValues = {
