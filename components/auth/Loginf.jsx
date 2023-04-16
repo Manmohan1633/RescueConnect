@@ -88,8 +88,8 @@ export default function Login() {
 
           <div class="flex items-center justify-center px-4 py-10 bg-white sm:px-6 lg:px-8 sm:py-16 lg:py-24">
             <div class="xl:w-full xl:max-w-sm 2xl:max-w-md xl:mx-auto">
-              <h2 class="text-3xl font-bold leading-tight text-black sm:text-4xl p-4">
-                Welcom to halpnow{" "}
+              <h2 class="text-3xl font-bold font-body leading-tight text-black sm:text-4xl p-4">
+                Welcome to <img src="/logof.png" className="h-12 mt-3" />{" "}
               </h2>
               <Toaster toastOptions={{ duration: 4000 }} />
               <div id="recaptcha-container"></div>

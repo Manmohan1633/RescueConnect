@@ -9,8 +9,8 @@ export default function Home() {
           <div className="px-4 mx-auto sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16 lg:h-20">
               <div className="flex-shrink-0">
-                <a href="#" title="" className="flex">
-                  <img className="w-auto h-8" src="/images/logo.png" alt="" />
+                <a href="#" title="" className="flex bg-white px-5 py-3 rounded-full mt-3 ">
+                  <img className="w-auto h-12" src="/logof.png" alt="" />
                 </a>
               </div>
 
