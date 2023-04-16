@@ -8,7 +8,7 @@
   <br>
 </h1>
 
-<h3 align="center">Rapid Responses Safer Communities</h3>
+<h3 align="center">Rapid Responses For Safer Communities</h3>
 
 
 ## About
