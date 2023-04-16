@@ -83,7 +83,7 @@ export default function Sidebaruser() {
       <div className="d">
         <Link href="/distressForm">
           <button className="h-fit">
-            <img className="w-[90%] ml-1 -mt-2" src="/emerge.png"></img>
+            <img className="w-[90%] ml-1 -mt-2" src="/images/emerge.png"></img>
           </button>
         </Link>
       </div>
