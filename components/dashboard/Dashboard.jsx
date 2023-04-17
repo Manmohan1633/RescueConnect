@@ -13,68 +13,48 @@ import { getDatabase, ref, onValue, child } from "firebase/database";
 export default function Dashboard() {
   const { user, currentUser, logout } = useAuth();
   const router = useRouter();
-  console.log(user.phonenumber);
   const dbInstance = collection(database, "users");
 
 const rootRef = ref(db);
 const temp = child(rootRef, "data");
 // const temp = child(temperatureRef, "firee");
+
+
+const [temp123, setTemp123] = useState(temp);
+
+
+
 const [tempr, setTempr] = useState(null);
-  console.log("temoerature raw", temp);
+console.log("temoerature raw", temp);
   
-  useEffect(() => {
-    onValue(temp, (snapshot) => {
+// calling and setting values into list
+useEffect(() => {
+    onValue(temp123, (snapshot) => {
       const tempVal = snapshot.val();
       console.log(tempVal,"value of temp")
       const latestTemp =
         Object.values(tempVal);
       setTempr(latestTemp);
       console.log(latestTemp,"what")
+
+
     });
-  }, [temp]);
+  }, [temp123]);
 
-// useEffect(() => {
-//   const unsubscribe = onValue(temp, (snapshot) => {
-//     const value = snapshot.val();
-//     setTempr(value);
-//     console.log(temperatureRef);
-//     if (value === 1) {
-//       temperatureRef.once("value", (snapshot) => {
-//         const value = snapshot.val();
-//         if (value === 1) {
-//           console.log("Fire detected!");
-//         }
-//       });
-//     }
-//   });
-//   return () => {
-//     unsubscribe();
-//   };
-// }, [temperatureRef]);
 
-// useEffect(() => {
-//   onValue(temperatureRef, (snapshot) => {
-//     console.log(snapshot.val(), "onn work aayo");
-//     const tempVal = snapshot.val();
-//     const latestTemp =
-//       Object?.values(tempVal)[Object?.values(tempVal).length - 1];
-//     setTempr(latestTemp);
-//   });
-// }, [temperatureRef]);
+
 
   const initialValues = {
-    tittle: "Fire accident",
-    description: "A big building got large fire",
-    intensity: "7",
-    location: { latitude: 10.0261, longitude: 76.3125 },
-    image:
-      "https://bsmedia.business-standard.com/_media/bs/img/article/2022-05/13/full/1652462127-1638.jpg?im=Resize,width=480",
+    tittle: "Fire at household",
+    description: "home sesnor detected fire",
+    intensity: "4",
+    location: { latitude: 12.9141, longitude: 74.8560},
+    imageurl:"https://img.freepik.com/premium-vector/fire-flame-logo-vector-illustration-design-template-fire-red-flame-icon-white-background_340607-24.jpg",
     datetime: getCurrentDate(),
     policehelp: true,
     firehelp: true,
     ambulancehelp: false,
     otherhelp: false,
-    imageurl: "",
     status: "NEW",
   };
   function getCurrentDate() {
@@ -82,15 +62,25 @@ const [tempr, setTempr] = useState(null);
     return currentDate.toISOString(); // return date in ISO format (e.g. "2023-03-06T12:30:00.000Z")
   }
 
-
-
+  let flag = 0;
   useEffect(() => {
-  
-    console.log(tempr,"hello");
-  
+    console.log("array check", tempr);
+    if (tempr?.includes(1)  && flag == 0) {
+      
+        const dbInstance = collection(database, "fire");
+        console.log("aayiiii")
+        console.log(initialValues);
+        addDoc(dbInstance, {
+          ...initialValues,
+        });
+        flag = 1;
+
+      
+    }
 
   }, [tempr]);
 
+  
   return (
     <main className="flex flex-col m-0 p-0 bg-white h-screen">
       <header className="z-40 items-center w-full h-16  bg-white  border-b-0 border-gray-200  py-8">

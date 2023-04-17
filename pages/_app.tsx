@@ -10,6 +10,7 @@ const noAuthRequired = [
   "/logina",
   "/loginf",
   "/loginp",
+  "/dashboard",
 ];
 
 export default function App({ Component, pageProps }: AppProps) {
