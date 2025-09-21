@@ -60,21 +60,33 @@ export default function Home() {
                 </Link>
 
                 <Link
-                  href="/loginf"
-                  title=""
-                  className="text-base font-semibold text-black transition-all duration-200 hover:text-opacity-80"
-                >
-                  {" "}
-                  Fire force{" "}
-                </Link>
-
-                <Link
                   href="/logina"
                   title=""
                   className="text-base font-semibold text-black transition-all duration-200 hover:text-opacity-80"
                 >
                   {" "}
                   Ambulance{" "}
+                </Link>
+
+                
+
+
+                <Link
+                  href="/loginf"
+                  title=""
+                  className="text-base font-semibold text-black transition-all duration-200 hover:text-opacity-80"
+                >
+                  {" "}
+                  Fire Brigade{" "}
+                </Link>
+
+                <Link
+                  href="/loginn"
+                  title=""
+                  className="text-base font-semibold text-black transition-all duration-200 hover:text-opacity-80"
+                >
+                  {" "}
+                  NGOs{" "}
                 </Link>
 
                 <div className="w-px h-5 bg-black/20"></div>
@@ -114,11 +126,11 @@ export default function Home() {
               </div>
 
               <div className="relative px-4 pt-24 pb-16 text-center sm:px-6 md:px-24 2xl:px-32 lg:py-24 lg:text-left">
-                <h1 className="text-2xl font-body font-bold  text-black sm:text-6xl xl:text-6xl">
-                  Rapid Responses For
+                <h1 className="text-2xl font-body font-bold  text-blue-600 sm:text-6xl xl:text-6xl">
+                  RescueConnect 
                 </h1>{" "}
                 <h1 className="text-2xl mt-4 font-body font-bold  text-black sm:text-6xl xl:text-6xl">
-                  Safer Communities
+                  Next-Gen Emergency Response Ecosystem
                 </h1>
                 <p className="mt-8 text-xl font-body text-black">
                   Building safer communities through education and preparation.

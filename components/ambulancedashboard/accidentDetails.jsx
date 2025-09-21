@@ -1,127 +1,116 @@
-import React from "react";
+import React, { useState } from "react";
 import { doc, updateDoc } from "firebase/firestore";
-import { app, database } from "../../config/firebase";
+import { database } from "../../config/firebase";
 
+// A smaller, reusable component for displaying details with an icon
+const IconDetail = ({ icon, text }) => (
+  <div className="flex items-center gap-1.5 text-sm text-gray-300">
+    {icon}
+    <span className="font-semibold">{text}</span>
+  </div>
+);
 
+export default function AccidentsDetails({ accident = {}, onUpdate }) {
+  // --- THIS IS THE FIX ---
+  // The property names now correctly match your actual Firestore data structure.
+  const { 
+    id, 
+    title, 
+    location, // Correctly using 'location'
+    datetime, // Correctly using 'datetime'
+    status 
+  } = accident;
+  
+  const [isLoading, setIsLoading] = useState(false);
 
-export default function AccidentsDetails({ title, loc, time, status,id }) {
-  //     const ACCESS_TOKEN = 'pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ';
-  // const geocoder = new MapboxGeocoder({
-  //     accessToken: ACCESS_TOKEN
-  // });
+  const handleAttendClick = async (e) => {
+    // Stop the click from propagating to any parent link/button
+    e.stopPropagation(); 
+    e.preventDefault();
 
-  // // Reverse geocode a set of coordinates
-  // geocoder.reverseGeocode({
-  //     query: [-122.42, 37.78]
-  // }).then(function(result) {
-  //     // Extract the location information from the response
-  //     const location = result.features[0].place_name;
-  //     console.log(location);
-  //     // Output: 1550 Bryant St, San Francisco, California 94103, United States
-  // });
+    if (!id) {
+        console.error("Cannot update: Accident ID is missing.");
+        return;
+    }
 
+    setIsLoading(true);
+    const accidentRef = doc(database, "fire", id);
+    try {
+      await updateDoc(accidentRef, { status: "DONE" });
+      console.log("Update successful!");
+      // Call the onUpdate function passed from the parent to refresh the list
+      if (onUpdate) {
+        onUpdate();
+      }
+    } catch (error) {
+      console.error("Error updating document:", error);
+      alert("Failed to update status. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  // Safely format the time using the correct 'datetime' variable
+  const formattedTime = datetime 
+    ? new Date(datetime.seconds ? datetime.seconds * 1000 : datetime).toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit' 
+      }) 
+    : "N/A";
+  
+  // Safely format the location from the 'location' object
+  const locationText = location?.latitude && location?.longitude 
+    ? `Lat: ${Number(location.latitude).toFixed(4)}, Lon: ${Number(location.longitude).toFixed(4)}`
+    : "Unavailable";
 
-
-// Set the "capital" field of the city 'DC'
-const handleClick = async () => {
-
-    console.log("function start")
- 
-    // Get a reference to the "DC" document in the "cities" collection
-    const washingtonRef = doc(database, "fire", id);
-
-    // Set the "capital" field of the "DC" document to true
-    await updateDoc(washingtonRef, {
-      status: "DONE"
-    });
-
-    window.location.reload(false);
-
-  }
-
-
+  // Dynamic colors for the status badge
+  const statusColors = {
+    NEW: "bg-red-600",
+    PENDING: "bg-yellow-500",
+    DONE: "bg-green-600",
+  };
 
   return (
-    <button className="w-full mb-2  ">
-      <div className="flex flex-col  w-full h-full gap-4 border-2 border-white px-2">
-        <div className=" rounded-lg  m-0 p-0">
-          <div className=" bg-[#fff0] hover:bg-[#fff1] h-full flex w-full  border-grey-500 mt-2  mr-2 items-center  justify-around py-1 border-grey-500">
-            <div className="flex flex-col px-2 ml-2 items-stretch  w-full ">
-              <div className="flex   text-white py-1 ">
-                <h3 className="font-sans  bg-red-900 text-xs font-normal tracking-wide ">
-                  {status ? status : "NEW"}
-                </h3>
-              </div>
-              <h2 className="font-sans text-left text-white  font-bold tracking-wide  pb-1 ">
-                {title ? title : "Accident"}
-              </h2>
-            </div>
+    <div className="w-full mb-2 text-left">
+      <div className="flex flex-col w-full h-full gap-4 border-l-4 border-red-500 rounded-lg p-4 bg-gray-800/80 hover:bg-gray-800 transition-colors shadow-md">
+        <div className="flex w-full items-start justify-between">
+          
+          {/* Title and Status */}
+          <div className="flex-grow">
+            <span className={`inline-block rounded px-2 py-0.5 text-xs font-bold tracking-wide text-white ${statusColors[status] || "bg-gray-500"}`}>
+              {status || "NEW"}
+            </span>
+            <h2 className="mt-1 font-sans text-lg font-bold tracking-wide text-white">
+              {title || "Accident"}
+            </h2>
+          </div>
 
-            <div className="flex items-center justify-center  w-full ">
-              <svg
-                width="20px"
-                height="20px"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="mt-1"
-              >
-                <path
-                  d="M12 21C10.22 21 8.47991 20.4722 6.99987 19.4832C5.51983 18.4943 4.36628 17.0887 3.68509 15.4442C3.0039 13.7996 2.82567 11.99 3.17294 10.2442C3.5202 8.49836 4.37737 6.89472 5.63604 5.63604C6.89472 4.37737 8.49836 3.5202 10.2442 3.17294C11.99 2.82567 13.7996 3.0039 15.4442 3.68509C17.0887 4.36628 18.4943 5.51983 19.4832 6.99987C20.4722 8.47991 21 10.22 21 12C21 14.387 20.0518 16.6761 18.364 18.364C16.6761 20.0518 14.387 21 12 21ZM12 4.5C10.5166 4.5 9.0666 4.93987 7.83323 5.76398C6.59986 6.58809 5.63856 7.75943 5.07091 9.12988C4.50325 10.5003 4.35473 12.0083 4.64411 13.4632C4.9335 14.918 5.64781 16.2544 6.6967 17.3033C7.7456 18.3522 9.08197 19.0665 10.5368 19.3559C11.9917 19.6453 13.4997 19.4968 14.8701 18.9291C16.2406 18.3614 17.4119 17.4001 18.236 16.1668C19.0601 14.9334 19.5 13.4834 19.5 12C19.5 10.0109 18.7098 8.10323 17.3033 6.6967C15.8968 5.29018 13.9891 4.5 12 4.5Z"
-                  fill="#808080"
-                />
-                <path
-                  d="M15 12.75H12C11.8019 12.7474 11.6126 12.6676 11.4725 12.5275C11.3324 12.3874 11.2526 12.1981 11.25 12V7C11.25 6.80109 11.329 6.61032 11.4697 6.46967C11.6103 6.32902 11.8011 6.25 12 6.25C12.1989 6.25 12.3897 6.32902 12.5303 6.46967C12.671 6.61032 12.75 6.80109 12.75 7V11.25H15C15.1989 11.25 15.3897 11.329 15.5303 11.4697C15.671 11.6103 15.75 11.8011 15.75 12C15.75 12.1989 15.671 12.3897 15.5303 12.5303C15.3897 12.671 15.1989 12.75 15 12.75Z"
-                  fill="#808080"
-                />
-              </svg>
-
-              <h2 className="font-sans  font-semibold tracking-wide text-white ml-1">
-                {time?.substr(11, 8)}
-              </h2>
-            </div>
-
-            <div className="flex  mx-3 ">
-              <svg
-                width="20px"
-                height="20px"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="mt-1"
-              >
-                <path
-                  d="M5 12V3L20 10L5 17V21"
-                  stroke="#808080"
-                  stroke-width="1.5"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
-              </svg>
-              <div className="flex-col items-center justify-between">
-                <h3 className="font-sans text-xs font-semibold tracking-wide text-white  text-start ml-1">
-                  Location
-                </h3>
-
-                <h2 className="font-sans  font-light  text-xs tracking-wide text-white ml-1">
-                  {loc ? loc : "Unavailable"}
-                </h2>
-              </div>
-            </div>
+          {/* Time and Location Details */}
+          <div className="flex flex-col items-end gap-2 text-gray-300">
+             <IconDetail 
+                text={formattedTime}
+                icon={<svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.414-1.414L11 10.586V6z" clipRule="evenodd" /></svg>}
+             />
+             <IconDetail 
+                text={locationText}
+                icon={<svg className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M5.05 4.05a7 7 0 119.9 9.9L10 21l-4.95-6.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" /></svg>}
+             />
           </div>
         </div>
 
-        <div className=" w-full h-full  ">
-          <button onClick={handleClick} class="relative inline-flex items-center justify-center p-0.5 mb-2 mr-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-red-500 to-rose-500 group-hover:from-red-500 group-hover:to-rose-500 hover:text-white dark:text-white">
-            <span class="relative px-5 py-2.5 transition-all ease-in duration-75 bg-white dark:bg-gray-900 rounded-md group-hover:bg-opacity-0">
-              Attend{" "}
+        {/* Action Button */}
+        <div className="mt-2 flex justify-end">
+          <button 
+            onClick={handleAttendClick} 
+            disabled={isLoading || status === "DONE"}
+            className="relative inline-flex items-center justify-center overflow-hidden rounded-lg bg-gradient-to-br from-red-500 to-rose-500 p-0.5 text-sm font-medium text-gray-900 transition-all hover:from-red-500 hover:to-rose-500 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <span className="relative rounded-md bg-gray-900 px-5 py-2.5 text-white transition-all duration-75 ease-in group-hover:bg-opacity-0">
+              {isLoading ? "Updating..." : (status === "DONE" ? "Attended" : "Attend Incident")}
             </span>
           </button>
-
-         
         </div>
       </div>
-    </button>
+    </div>
   );
 }

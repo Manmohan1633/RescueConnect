@@ -1,200 +1,73 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import ReactDOMServer from "react-dom/server";
 
-// import './App.css';
-// import MapMarker from './Marker';
+// --- Configuration ---
+mapboxgl.accessToken = "pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ";
-import { app, database } from "../../config/firebase";
-import { collection, addDoc, getDocs, getFirestore } from "firebase/firestore";
+// --- Reusable Popup Component for the markers ---
+const PopupComponent = ({ accident }) => (
+  <div className="p-1 font-sans">
+    <h3 className="text-base font-bold text-gray-800">{accident.title || "Accident"}</h3>
+    {accident.description && <p className="text-sm text-gray-600">{accident.description}</p>}
+    <p className="mt-1 text-xs text-gray-500">Status: {accident.status || "NEW"}</p>
+  </div>
+);
 
-function PopupComponent({ data }) {
-  return (
-    <div className="popup flex-col items-center">
-      {/* // <div>
-      //   <span class="relative isolate inline-flex items-center justify-center">
-      //     <span class="animate-scale absolute z-0 h-8 w-8 rounded-full bg-indigo-400/60"></span>
-      //     <span class="animate-scale animation-delay-1000 absolute z-10 h-8 w-8 rounded-full bg-indigo-400/60"></span>
-      //   </span>
-      // </div> */}
+// --- Main Map Component ---
+export default function Map({ accidents = [] }) {
+  const mapContainer = useRef(null);
+  const map = useRef(null);
+  const markersRef = useRef([]); // Use a ref to keep track of markers
 
-      <h3 className=" font-sans text-lg ">{data.title?.toUpperCase()}</h3>
-      <p className="font-sans text-sm">{data.description}</p>
-    </div>
-  );
-}
-
-function Map() {
-  //   const dbInstance = collection(database, "accidents");
-
-  //   const getNotes = () => {
-  //     getDocs(dbInstance)
-  //         .then((data) => {
-  //             console.log(data.docs.map((item) => {
-  //                 return { ...item.data(), id: item.id }
-  //             }));
-  //         })
-  //     }
-
-  const [markerData, setmarkerData] = useState([{}]);
-  const [Location, setLocation] = useState([]);
-  const [corods, setcorods] = useState([]);
-
-  const fetchPost = async () => {
-    const db = getFirestore();
-    await getDocs(collection(db, "fire")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      setmarkerData(newData);
-      setLocation(
-        newData
-          .filter((person) => person.location !== "")
-          .map((person) => person.location)
-      );
-    });
-  };
-
+  // Effect to initialize the map once
   useEffect(() => {
-    fetchPost();
-    // console.log(markerData)
+    if (map.current || !mapContainer.current) return; // Initialize map only once
 
-    // console.log(corods)
-    // console.log(markerData)
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/streets-v11",
+      center: [73.0243, 26.2389], // Default center to Jodhpur
+      zoom: 11,
+      attributionControl: false,
+    });
+
+    map.current.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+    map.current.addControl(new mapboxgl.GeolocateControl({
+      positionOptions: { enableHighAccuracy: true },
+      trackUserLocation: true,
+    }), "bottom-right");
   }, []);
 
+  // --- THIS IS THE FIX ---
+  // This effect runs whenever the 'accidents' prop changes, ensuring the map is always up-to-date.
   useEffect(() => {
-    setcorods(Location.map((item) => [item?.longitude, item?.latitude]));
-  }, [Location]);
+    if (!map.current) return; // Don't do anything if the map isn't ready
 
-  // let cordinaates =[[76.3289828 , 10.0298734],[76.3570,10.1004],[76.3125,10.0261]]
-  // console.log( Location.map((item) => [item.longitude, item.latitude]));
+    // 1. Clear any existing markers from the map to prevent duplicates.
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = []; // Clear the markers array
 
-  // console.log(corods)
-  // console.log(markerData)
+    // 2. Add new markers for each accident in the updated list.
+    accidents.forEach((accident) => {
+      // Ensure the location data is valid before creating a marker
+      if (accident.location?.latitude && accident.location?.longitude) {
+        
+        const popupHTML = ReactDOMServer.renderToString(
+          <PopupComponent accident={accident} />
+        );
 
-  // console.log(Location)
-  // useEffect(() => {
-  //   const coordinatess = Location.map((item) => [item.longitude, item.latitude]);
+        const newMarker = new mapboxgl.Marker({ color: "#d9534f" }) // A nice red color
+          .setLngLat([accident.location.longitude, accident.location.latitude])
+          .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(popupHTML))
+          .addTo(map.current);
 
-  // }, [Location]);
-
-  // console.log(corods)
-
-  let longitude, latitude;
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        (latitude = position.coords.latitude),
-          (longitude = position.coords.longitude);
-        // console.log(latitude,longitude)
-      },
-      (error) => {
-        console.log(error);
+        // Add the new marker to our ref array so we can remove it later.
+        markersRef.current.push(newMarker);
       }
-    );
-  } else {
-    console.log("Geolocation is not supported by this browser.");
-  }
-  // console.log(latitude,longitude)
-
-  function saveLocationData() {}
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const map = new mapboxgl.Map({
-        container: "map",
-        style: "mapbox://styles/mapbox/streets-v11",
-        attributionControl: false,
-        // style:'mapbox://styles/mapbox/dark-v11',
-        center: [position.coords.longitude, position.coords.latitude],
-        zoom: 12,
-      });
-
-      // const marker = new mapboxgl.Marker({
-      //   color: "#ff0000",
-      //   draggable: true
-      //   }).setLngLat( [position.coords.longitude, position.coords.latitude])
-      //   .setPopup(new mapboxgl.Popup().setHTML("<h1>Hello World!</h1>"))
-      //   .addTo(map);
-
-      map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-      map.addControl(
-        new mapboxgl.GeolocateControl({
-          positionOptions: {
-            enableHighAccuracy: true,
-          },
-          trackUserLocation: true,
-          showUserHeading: true,
-        }),
-        "bottom-right"
-      );
-
-      const markers = markerData.map((obj) => {
-        console.log(obj.location?.longitude,"myreeee")
-        if (obj.location?.latitude) {
-          return new mapboxgl.Marker({ color: "#ff0000" })
-            .setLngLat([obj?.location?.longitude, obj?.location?.latitude])
-            .setPopup(
-              new mapboxgl.Popup({ closeOnClick: false }).setHTML(
-                ReactDOMServer.renderToString(
-                  <PopupComponent data={obj} key={obj.id} />
-                )
-              )
-            )
-            .addTo(map);
-        }
-      });
-
-      // const markers = markerData?.map((obj) => {
-      //   console.log(obj.location.latitude)
-      // });
-      // if (markerData) {
-
-      //   markerData.map((obj) => {
-      //     if (obj.location?.latitude) {
-      //       const htmlString = ReactDOMServer.renderToString(<PopupComponent data={obj} key={obj.id} />);
-
-      //       return (new mapboxgl.Marker(
-      //               {color: "#ff0000"}
-
-      //       ).setLngLat([obj.location.longitude,obj.location.latitude])
-      //       .setPopup(new mapboxgl.Popup({ closeOnClick: false }).setText(obj.title)
-
-      //       .addTo(map)));
-
-      //     }
-      //       // console.log(obj.location?.latitude)}
-      //   else {
-      //     console.log("no location");
-      //   }
-
-      // });
-      // }
-
-      //       const markers = markerData?.map((obj) => {
-      //   if (obj.location.latitude) {
-      //       // return (new mapboxgl.Marker().setLngLat([obj.location.longitude,obj.location.latitude]).addTo(map));}
-      //       console.log(obj.location.latitude)}
-      //   else {
-      //     console.log("no location");
-      //   }
-
-      // });
     });
-  }, [corods]);
 
-  return (
-    <>
-      <div
-        id="map"
-        className="absolute inset-0 m-0 overflow-hidden z-100 shadow-md  rounded-1xl "
-      ></div>
-    </>
-  );
+  }, [accidents]); // The key is to make this effect dependent on the 'accidents' array.
+
+  return <div ref={mapContainer} className="absolute inset-0 z-0" />;
 }
-
-export default Map;

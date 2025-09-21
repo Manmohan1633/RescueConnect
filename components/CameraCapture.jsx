@@ -8,7 +8,7 @@ const CameraCapture = ({ onCapture }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // This effect hook safely attaches the stream to the video element
+  // Safely attach the stream to the video element when the stream is ready
   useEffect(() => {
     if (stream && videoRef.current) {
       videoRef.current.srcObject = stream;
@@ -16,14 +16,16 @@ const CameraCapture = ({ onCapture }) => {
   }, [stream]);
 
   const startCamera = useCallback(async () => {
-    // Clear any previous captures
+    // Clear any previous captures when starting the camera
     setCapturedImage(null);
-    onCapture(null);
+    if(onCapture) onCapture(null);
+
     try {
+      // Prioritize the back camera ('environment') for mobile devices
       const mediaStream = await navigator.mediaDevices.getUserMedia({ 
         video: { facingMode: 'environment' }
       });
-      setStream(mediaStream); // This will trigger the useEffect above
+      setStream(mediaStream);
     } catch (err) {
       console.error("Error accessing camera:", err);
       alert("Could not access the camera. Please check permissions in your browser settings.");
@@ -50,7 +52,7 @@ const CameraCapture = ({ onCapture }) => {
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
         const imageFile = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
-        onCapture(imageFile);
+        if(onCapture) onCapture(imageFile);
       }, 'image/jpeg');
 
       stopCamera();
@@ -58,32 +60,49 @@ const CameraCapture = ({ onCapture }) => {
   };
 
   return (
-    <div className="border p-4 rounded-lg bg-gray-50 text-center">
-      {!stream && !capturedImage && (
-        <button type="button" onClick={startCamera} className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 font-semibold">
-          Open Camera
-        </button>
-      )}
+    <div className="w-full rounded-lg border bg-gray-50 p-4 text-center">
+      
+      {/* --- Unified Preview Box --- */}
+      <div className="flex h-64 w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-black overflow-hidden">
+        {!stream && !capturedImage && (
+          <p className="text-gray-400">Camera preview will appear here</p>
+        )}
+        {stream && (
+          <video 
+            ref={videoRef} 
+            autoPlay 
+            playsInline 
+            muted 
+            className="h-full w-full object-cover"
+          />
+        )}
+        {capturedImage && (
+          <img 
+            src={capturedImage} 
+            alt="Captured preview" 
+            className="h-full w-full object-cover"
+          />
+        )}
+      </div>
 
-      {stream && (
-        <div>
-          {/* Removed the debugging border */}
-          <video ref={videoRef} autoPlay playsInline muted className="w-full rounded-lg mb-2" />
-          <button type="button" onClick={takePicture} className="w-full mt-2 bg-green-500 text-white py-2 rounded-lg hover:bg-green-600 font-semibold">
+      {/* --- Action Buttons --- */}
+      <div className="mt-4">
+        {!stream && !capturedImage && (
+          <button type="button" onClick={startCamera} className="w-full rounded-lg bg-blue-600 py-2.5 font-semibold text-white hover:bg-blue-700">
+            Open Camera
+          </button>
+        )}
+        {stream && (
+          <button type="button" onClick={takePicture} className="w-full rounded-lg bg-green-600 py-2.5 font-semibold text-white hover:bg-green-700">
             Take Picture
           </button>
-        </div>
-      )}
-
-      {capturedImage && (
-        <div>
-          <p className="text-sm font-medium mb-2">Image Preview:</p>
-          <img src={capturedImage} alt="Captured preview" className="w-full rounded-lg" />
-          <button type="button" onClick={startCamera} className="w-full mt-2 bg-yellow-500 text-white py-2 rounded-lg hover:bg-yellow-600 font-semibold">
+        )}
+        {capturedImage && (
+          <button type="button" onClick={startCamera} className="w-full rounded-lg bg-yellow-500 py-2.5 font-semibold text-white hover:bg-yellow-600">
             Retake
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       <canvas ref={canvasRef} style={{ display: 'none' }} />
     </div>

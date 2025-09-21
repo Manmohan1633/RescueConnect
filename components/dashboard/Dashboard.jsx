@@ -1,180 +1,161 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
+import Link from "next/link";
+import { useRouter } from "next/router";
+import { getDatabase, ref, onValue } from "firebase/database";
+import { collection, addDoc, getFirestore, getDocs } from "firebase/firestore";
+
 import Sidebar from "../sidebar/Sidebar";
 import Accidents from "../accidents/accidents";
-import Link from "next/link";
-import AddDistress from "../button/AddDistress";
-import { useAuth } from "../../context/AuthContext";
-import { useRouter } from "next/router";
-import { app, database, db } from "../../config/firebase";
-import { collection, addDoc } from "firebase/firestore";
 import Map from "../map/map";
-import { getDatabase, ref, onValue, child } from "firebase/database";
+import { useAuth } from "../../context/AuthContext";
+import { db, database } from "../../config/firebase";
 
-export default function Dashboard() {
-  const { user, currentUser, logout } = useAuth();
-  const router = useRouter();
-  const dbInstance = collection(database, "users");
+// --- Custom Hook to Fetch Accidents from Firestore ---
+const useAccidentsData = () => {
+    const [accidents, setAccidents] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-const rootRef = ref(db);
-const temp = child(rootRef, "data");
-// const temp = child(temperatureRef, "firee");
+    const fetchAccidents = async () => {
+        setLoading(true);
+        try {
+            const db = getFirestore();
+            const querySnapshot = await getDocs(collection(db, "fire"));
+            const newData = querySnapshot.docs.map((doc) => ({
+                ...doc.data(),
+                id: doc.id,
+            }));
+            setAccidents(newData);
+        } catch (err) {
+            console.error("Error fetching accidents:", err);
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
+        fetchAccidents();
+    }, []);
 
-const [temp123, setTemp123] = useState(temp);
+    return { accidents, loading, error, refreshAccidents: fetchAccidents };
+};
 
-
-
-const [tempr, setTempr] = useState(null);
-console.log("temoerature raw", temp);
-  
-// calling and setting values into list
-useEffect(() => {
-    onValue(temp123, (snapshot) => {
-      const tempVal = snapshot.val();
-      console.log(tempVal,"value of temp")
-      if (tempVal) {
-      const latestTemp =
-        Object.values(tempVal);
-      setTempr(latestTemp);
-      console.log(latestTemp,"what")
-      }
-
-
-    });
-  }, [temp123]);
-
-
-
-
-  const initialValues = {
-    title: "Fire at household",
-    description: "home sesnor detected fire",
-    intensity: "4",
-    location: { latitude: 12.9141, longitude: 74.8560},
-    imageurl:"https://img.freepik.com/premium-vector/fire-flame-logo-vector-illustration-design-template-fire-red-flame-icon-white-background_340607-24.jpg",
-    datetime: getCurrentDate(),
-    policehelp: true,
-    firehelp: true,
-    ambulancehelp: false,
-    otherhelp: false,
-    status: "NEW",
-  };
-  function getCurrentDate() {
-    const currentDate = new Date();
-    return currentDate.toISOString(); // return date in ISO format (e.g. "2023-03-06T12:30:00.000Z")
-  }
-
-  let flag = 0;
+// --- Custom Hook for Firebase Realtime Database Listener (for sensor) ---
+const useRealtimeValue = (dbPath) => {
+  const [value, setValue] = useState(null);
   useEffect(() => {
-    console.log("array check", tempr);
-    if (tempr?.includes(1)  && flag == 0) {
-      
-        const dbInstance = collection(database, "fire");
-        console.log("aayiiii")
-        console.log(initialValues);
-        addDoc(dbInstance, {
-          ...initialValues,
-        });
-        flag = 1;
+    const dbRef = ref(getDatabase(), dbPath);
+    const unsubscribe = onValue(dbRef, (snapshot) => {
+      const data = snapshot.val();
+      setValue(data);
+    });
+    return () => unsubscribe();
+  }, [dbPath]);
+  return value;
+};
 
-      
-    }
 
-  }, [tempr]);
-
+// --- Main Dashboard Component ---
+export default function Dashboard() {
+  const { user, logout } = useAuth();
+  const { accidents, loading, error, refreshAccidents } = useAccidentsData();
   
+  // This logic for the real-time sensor remains the same.
+  const tempData = useRealtimeValue("data");
+  const hasTriggeredRef = useRef(false);
+
+  useEffect(() => {
+    const temperatures = tempData ? Object.values(tempData) : [];
+    if (temperatures.includes(1) && !hasTriggeredRef.current) {
+      console.log("Fire detected! Adding document to Firestore.");
+      hasTriggeredRef.current = true; // Prevent multiple triggers
+      
+      const firestore = getFirestore();
+      const fireCollectionRef = collection(firestore, "fire");
+
+      const newFireAlert = {
+        title: "Fire at household",
+        description: "Home sensor detected fire",
+        intensity: "4",
+        location: { latitude: 12.9141, longitude: 74.8560 },
+        imageurl: "https://placehold.co/100x100/e2e8f0/334155?text=Fire",
+        datetime: new Date().toISOString(),
+        policehelp: true,
+        firehelp: true,
+        ambulancehelp: false,
+        otherhelp: false,
+        status: "NEW",
+      };
+
+      addDoc(fireCollectionRef, newFireAlert)
+        .then(() => {
+          console.log("Successfully added fire alert.");
+          refreshAccidents(); // Refresh the list after adding a new one
+        })
+        .catch((err) => {
+          console.error("Error adding document:", err);
+          hasTriggeredRef.current = false; // Allow trying again if it failed
+        });
+    }
+  }, [tempData, refreshAccidents]);
+
   return (
-    <main className="flex flex-col m-0 p-0 bg-white h-screen">
-      <header className="z-40 items-center w-full h-16  bg-white  border-b-0 border-gray-200  py-8">
-        <div className="relative z-20 flex flex-col justify-center h-full px-3 mx-auto flex-center">
-          <div className="relative flex items-center w-full pl-1 lg:max-w-68 sm:pr-2 sm:ml-0">
-            <div className="container relative left-0 z-50 flex w-3/4 h-full">
-              <Link href="/">
-                {" "}
-                <img src="/logof.png" alt="logo" className="w-48 mt-2 " />
-              </Link>
-            </div>
+    <main className="flex h-screen bg-gray-100">
+      {/* Sidebar on the left (fixed width) */}
+      <div className="w-24 flex-shrink-0">
+        <Sidebar />
+      </div>
 
-            <div className="relative flex gap-4 items-center justify-end w-1/4 p-1 ml-5 mr-4 sm:mr-0 sm:right-auto">
-              {user ? (
-                <button
-                  className="inline-flex justify-end items-center px-4 py-2  bg-blue-100 shadow-sm hover:bg-red-200 hover:text-red-600 text-blue-600 text-sm  font-medium font-sans rounded-md"
-                  onClick={() => {
-                    logout();
-                  }}
-                >
-                  Logout
-                </button>
-              ) : (
-                <>
-                  <Link href="/signup" passHref>
-                    <button>Signup</button>
-                  </Link>
-                  <Link href="/login" passHref>
-                    <button>Login</button>
-                  </Link>
-                </>
-              )}
-              {/* notification */}
-              <button>
-                <svg
-                  width="25px"
-                  height="25px"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12.02 2.90991C8.70997 2.90991 6.01997 5.59991 6.01997 8.90991V11.7999C6.01997 12.4099 5.75997 13.3399 5.44997 13.8599L4.29997 15.7699C3.58997 16.9499 4.07997 18.2599 5.37997 18.6999C9.68997 20.1399 14.34 20.1399 18.65 18.6999C19.86 18.2999 20.39 16.8699 19.73 15.7699L18.58 13.8599C18.28 13.3399 18.02 12.4099 18.02 11.7999V8.90991C18.02 5.60991 15.32 2.90991 12.02 2.90991Z"
-                    stroke="#808080"
-                    stroke-width="1.5"
-                    stroke-miterlimit="10"
-                    stroke-linecap="round"
-                  />
-                  <path
-                    d="M13.87 3.19994C13.56 3.10994 13.24 3.03994 12.91 2.99994C11.95 2.87994 11.03 2.94994 10.17 3.19994C10.46 2.45994 11.18 1.93994 12.02 1.93994C12.86 1.93994 13.58 2.45994 13.87 3.19994Z"
-                    stroke="#808080"
-                    stroke-width="1.5"
-                    stroke-miterlimit="10"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                  <path
-                    d="M15.02 19.0601C15.02 20.7101 13.67 22.0601 12.02 22.0601C11.2 22.0601 10.44 21.7201 9.90002 21.1801C9.36002 20.6401 9.02002 19.8801 9.02002 19.0601"
-                    stroke="#808080"
-                    stroke-width="1.5"
-                    stroke-miterlimit="10"
-                  />
-                </svg>
+      {/* Main content area that fills the remaining space */}
+      <div className="flex flex-1 flex-col overflow-hidden">
+        
+        {/* New Aligned Header */}
+        <header className="z-10 flex h-20 w-full items-center justify-between border-b border-gray-200 bg-white px-6">
+          <div className="flex items-center">
+             <img src="/logof.png" alt="logo" className="h-10 w-auto" />
+          </div>
+          <div className="flex items-center gap-4">
+            {user ? (
+              <button
+                className="rounded-md bg-blue-100 px-4 py-2 text-sm font-medium text-blue-600 shadow-sm hover:bg-red-200 hover:text-red-600"
+                onClick={logout}
+              >
+                Logout
               </button>
+            ) : (
+              <>
+                <Link href="/signup">Signup</Link>
+                <Link href="/login">Login</Link>
+              </>
+            )}
+            <button aria-label="Notifications">
+              <svg width="25px" height="25px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                 <path d="M12.02 2.90991C8.70997 2.90991 6.01997 5.59991 6.01997 8.90991V11.7999C6.01997 12.4099 5.75997 13.3399 5.44997 13.8599L4.29997 15.7699C3.58997 16.9499 4.07997 18.2599 5.37997 18.6999C9.68997 20.1399 14.34 20.1399 18.65 18.6999C19.86 18.2999 20.39 16.8699 19.73 15.7699L18.58 13.8599C18.28 13.3399 18.02 12.4099 18.02 11.7999V8.90991C18.02 5.60991 15.32 2.90991 12.02 2.90991Z" stroke="#808080" strokeWidth="1.5" strokeMiterlimit="10" strokeLinecap="round"/>
+              </svg>
+            </button>
+            <Link href="/profile">
+              <img
+                alt="profile"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Circle-icons-profile.svg/2048px-Circle-icons-profile.svg.png"
+                className="h-8 w-8 rounded-full object-cover"
+              />
+            </Link>
+          </div>
+        </header>
 
-              <Link href="/dashboard" className="relative block">
-                <img
-                  alt="profil"
-                  src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/Circle-icons-profile.svg/2048px-Circle-icons-profile.svg.png"
-                  className="mx-auto object-cover rounded-full h-8 w-8 "
-                />
-              </Link>
-            </div>
+        {/* Content below the new header (Accidents list and Map) */}
+        <div className="flex flex-grow gap-4 p-4 overflow-hidden">
+          {/* Accidents Column */}
+          <div className="w-full sm:flex-1">
+            <Accidents accidents={accidents} loading={loading} error={error} onUpdate={refreshAccidents} />
+          </div>
+          {/* Map Column */}
+          <div className="relative w-full rounded-2xl shadow-md sm:flex-1">
+            <Map accidents={accidents} />
           </div>
         </div>
-      </header>
 
-      <div className=" flex mt-2 gap-2  min-h-full flex-col sm:flex-row  p-0.5">
-        <div className="flex w-full sm:w-64 m-0 p-0" style={{ flex: 0.6 }}>
-          <Sidebar />
-        </div>
-
-        <div className="flex relative  flex-col px-2 " style={{ flex: 4 }}>
-          <Accidents></Accidents>
-        </div>
-
-        <div
-          className=" relative flex flex-col  m-0 p-0  shadow-md  rounded-2xl "
-          style={{ flex: 6 }}
-        >
-          <Map />
-        </div>
       </div>
     </main>
   );

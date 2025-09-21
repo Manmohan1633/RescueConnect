@@ -1,64 +1,70 @@
-/* eslint-disable react/jsx-key */
-import React from 'react'
-import Image from "next/image";
-import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
-import { useAuth } from "../../context/AuthContext";
-import AccidentsDetails from "./accidentDetails";
-import Tabs from "../accidents/tabs";
-import { app, database } from "../../config/firebase";
-import { collection, addDoc, getDocs, getFirestore } from "firebase/firestore";
+import React, { useState, useEffect } from "react";
+import { collection, getDocs, getFirestore, query, orderBy, limit } from "firebase/firestore";
+import AccidentsDetails from "./accidentDetails"; // Ensure this is the correct path
 
+// --- Custom Hook to fetch recent accidents ---
+const useRecentAccidents = (itemLimit) => {
+  const [accidents, setAccidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-export default function Card() {
+  useEffect(() => {
+    const fetchRecentAccidents = async () => {
+      setLoading(true);
+      try {
+        const db = getFirestore();
+        const accidentsQuery = query(
+          collection(db, "fire"), 
+          orderBy("datetime", "desc"), 
+          limit(itemLimit)
+        );
+        
+        const querySnapshot = await getDocs(accidentsQuery);
+        const newData = querySnapshot.docs.map((doc) => ({ ...doc.data(), id: doc.id }));
+        setAccidents(newData);
+      } catch (err) {
+        console.error("Error fetching recent accidents:", err);
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-       const [markerData, setmarkerData] = useState([{}]);
-       const [Location, setLocation] = useState([]);
-       const [corods, setcorods] = useState([]);
+    fetchRecentAccidents();
+  }, [itemLimit]);
 
-       const fetchPost = async () => {
-         const db = getFirestore();
-         await getDocs(collection(db, "fire")).then((querySnapshot) => {
-           const newData = querySnapshot.docs.map((doc) => ({
-             ...doc.data(),
-             id: doc.id,
-           }));
-           setmarkerData(newData);
-           setLocation(
-             newData
-               .filter((person) => person.location !== "")
-               .map((person) => person.location)
-           );
-         });
-       };
+  return { accidents, loading, error };
+};
 
-       useEffect(() => {
-         fetchPost();
-         console.log(markerData);
+// --- The Main Component ---
+export default function RecentAccidentsCard() {
+  const { accidents, loading, error } = useRecentAccidents(2);
 
-         // console.log(corods)
-         // console.log(markerData)
-       }, []);
+  const renderContent = () => {
+    if (loading) return <p className="py-4 text-center text-gray-400">Loading reports...</p>;
+    if (error) return <p className="py-4 text-center text-red-500">Could not load reports.</p>;
+    if (accidents.length === 0) return <p className="py-4 text-center text-gray-400">No recent accidents.</p>;
+    
+    return accidents.map((accident) => (
+      <AccidentsDetails key={accident.id} accident={accident} />
+    ));
+  };
 
-    return (
+  return (
+    // --- THIS IS THE FIX ---
+    // The background is now transparent to match your dark theme.
+    <div className="relative flex h-full flex-col rounded-2xl bg-transparent p-2">
+      <div className="flex items-center justify-between px-4 pt-4">
+        {/* Text color is now white to be visible on a dark background */}
+        <h3 className="text-lg font-bold text-gray-100">Recent Accidents</h3>
+        <a href="#" className="text-sm font-medium text-red-500 hover:underline">
+          View all
+        </a>
+      </div>
       
-        <div
-          className=" h-full mr-0 flex-flex-col bg-[#fff0] "
-          style={{ flex: 3 }}
-        >
-          {markerData.slice(0,2).map((obj) => (
-            <AccidentsDetails
-              id={obj.id}
-              title={obj.title}
-              time={obj.datetime}
-              status={obj.status}
-              loc={[obj.location?.latitude, obj.location?.longitude]}
-            />
-          ))}
-          {/* {markerData.map((obj) => console.log("hel",obj))} */}
-        </div>
-       
-    );
+      <div className="flex-grow overflow-y-auto pt-2">
+        {renderContent()}
+      </div>
+    </div>
+  );
 }
-
-

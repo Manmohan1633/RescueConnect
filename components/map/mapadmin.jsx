@@ -1,406 +1,145 @@
-// import React, { useEffect, useState } from "react";
-// import mapboxgl from "mapbox-gl";
-// import ReactDOMServer from "react-dom/server";
-// // import './App.css';
-// // import MapMarker from './Marker';
-
-// mapboxgl.accessToken =
-//   "pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ";
-// import { app, database } from "../../config/firebase";
-// import { collection, addDoc, getDocs, getFirestore } from "firebase/firestore";
-
-// function PopupComponent({ data }) {
-//   return (
-//     <div className="popup flex-col items-center">
-//       {/* // <div>
-//       //   <span class="relative isolate inline-flex items-center justify-center">
-//       //     <span class="animate-scale absolute z-0 h-8 w-8 rounded-full bg-indigo-400/60"></span>
-//       //     <span class="animate-scale animation-delay-1000 absolute z-10 h-8 w-8 rounded-full bg-indigo-400/60"></span>
-//       //   </span>
-//       // </div> */}
-
-//       <h3 className=" font-sans text-lg ">{data.title.toUpperCase()}</h3>
-//       <p className="font-sans text-sm">{data.description}</p>
-//     </div>
-//   );
-// }
-
-// function Map() {
-//   //   const dbInstance = collection(database, "accidents");
-
-//   //   const getNotes = () => {
-//   //     getDocs(dbInstance)
-//   //         .then((data) => {
-//   //             console.log(data.docs.map((item) => {
-//   //                 return { ...item.data(), id: item.id }
-//   //             }));
-//   //         })
-//   //     }
-
-//   const [markerData, setmarkerData] = useState([{}]);
-//   const [Location, setLocation] = useState([]);
-//   const [corods, setcorods] = useState([]);
-
-//   const fetchPost = async () => {
-//     const db = getFirestore();
-//     await getDocs(collection(db, "fire")).then((querySnapshot) => {
-//       const newData = querySnapshot.docs.map((doc) => ({
-//         ...doc.data(),
-//         id: doc.id,
-//       }));
-//       setmarkerData(newData);
-//       setLocation(
-//         newData
-//           .filter((person) => person.location !== "")
-//           .map((person) => person.location)
-//       );
-//     });
-//   };
-
-//   useEffect(() => {
-//     fetchPost();
-//     // console.log(markerData)
-
-//     // console.log(corods)
-//     // console.log(markerData)
-//   }, []);
-
-//   useEffect(() => {
-//     setcorods(Location.map((item) => [item?.longitude, item?.latitude]));
-//   }, [Location]);
-
-//   // let cordinaates =[[76.3289828 , 10.0298734],[76.3570,10.1004],[76.3125,10.0261]]
-//   // console.log( Location.map((item) => [item.longitude, item.latitude]));
-
-//   // console.log(corods)
-//   // console.log(markerData)
-
-//   // console.log(Location)
-//   // useEffect(() => {
-//   //   const coordinatess = Location.map((item) => [item.longitude, item.latitude]);
-
-//   // }, [Location]);
-
-//   // console.log(corods)
-
-//   let longitude, latitude;
-//   if (navigator.geolocation) {
-//     navigator.geolocation.getCurrentPosition(
-//       (position) => {
-//         (latitude = position.coords.latitude),
-//           (longitude = position.coords.longitude);
-//         // console.log(latitude,longitude)
-//       },
-//       (error) => {
-//         console.log(error);
-//       }
-//     );
-//   } else {
-//     console.log("Geolocation is not supported by this browser.");
-//   }
-//   // console.log(latitude,longitude)
-
-//   function saveLocationData() {}
-
-//   useEffect(() => {
-//     navigator.geolocation.getCurrentPosition((position) => {
-//       const map = new mapboxgl.Map({
-//         container: "map",
-//         style: "mapbox://styles/mapbox/streets-v11",
-//         attributionControl: false,
-//         style: "mapbox://styles/mapbox/dark-v11",
-//         center: [position.coords.longitude, position.coords.latitude],
-//         zoom: 12,
-//       });
-
-//       // const marker = new mapboxgl.Marker({
-//       //   color: "#ff0000",
-//       //   draggable: true
-//       //   }).setLngLat( [position.coords.longitude, position.coords.latitude])
-//       //   .setPopup(new mapboxgl.Popup().setHTML("<h1>Hello World!</h1>"))
-//       //   .addTo(map);
-
-//       map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-//       map.addControl(
-//         new mapboxgl.GeolocateControl({
-//           positionOptions: {
-//             enableHighAccuracy: true,
-//           },
-//           trackUserLocation: true,
-//           showUserHeading: true,
-//         }),
-//         "bottom-right"
-//       );
-
-//       let el = document.createElement("div");
-//       const markers = markerData.map((obj) => {
-        
-//        el = document.createElement("div");
-//        el.className = "marker";
-//         if (obj.location?.latitude) {
-//           return new mapboxgl.Marker(el)
-//             .setLngLat([obj.location.longitude, obj.location.latitude])
-//             .setPopup(
-//               new mapboxgl.Popup({ closeOnClick: false }).setHTML(
-//                 ReactDOMServer.renderToString(
-//                   <PopupComponent data={obj} key={obj.id} />
-//                 )
-//               )
-//             )
-//             .addTo(map);
-//         }
-//       });
-
-//       // const markers = markerData?.map((obj) => {
-//       //   console.log(obj.location.latitude)
-//       // });
-//       // if (markerData) {
-
-//       //   markerData.map((obj) => {
-//       //     if (obj.location?.latitude) {
-//       //       const htmlString = ReactDOMServer.renderToString(<PopupComponent data={obj} key={obj.id} />);
-
-//       //       return (new mapboxgl.Marker(
-//       //               {color: "#ff0000"}
-
-//       //       ).setLngLat([obj.location.longitude,obj.location.latitude])
-//       //       .setPopup(new mapboxgl.Popup({ closeOnClick: false }).setText(obj.title)
-
-//       //       .addTo(map)));
-
-//       //     }
-//       //       // console.log(obj.location?.latitude)}
-//       //   else {
-//       //     console.log("no location");
-//       //   }
-
-//       // });
-//       // }
-
-//       //       const markers = markerData?.map((obj) => {
-//       //   if (obj.location.latitude) {
-//       //       // return (new mapboxgl.Marker().setLngLat([obj.location.longitude,obj.location.latitude]).addTo(map));}
-//       //       console.log(obj.location.latitude)}
-//       //   else {
-//       //     console.log("no location");
-//       //   }
-
-//       // });
-//     });
-//   }, [corods]);
-
-//   return (
-//     <>
-//       <div
-//         id="map"
-//         className="absolute inset-0 m-0 overflow-hidden z-100 shadow-md  rounded-xl "
-//       ></div>
-//     </>
-//   );
-// }
-// export default Map;
-
-
-
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import ReactDOMServer from "react-dom/server";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
 
-// import './App.css';
-// import MapMarker from './Marker';
+// --- Configuration ---
+mapboxgl.accessToken = "pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ";
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ";
-import { app, database } from "../../config/firebase";
-import { collection, addDoc, getDocs, getFirestore } from "firebase/firestore";
+// --- Custom Hook to Fetch Firebase Data ---
+const useFirebaseData = (collectionName) => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const db = getFirestore();
+        const querySnapshot = await getDocs(collection(db, collectionName));
+        const newData = querySnapshot.docs.map((doc) => ({
+          ...doc.data(),
+          id: doc.id,
+        }));
+        setData(newData);
+      } catch (err) {
+        setError(err);
+        console.error("Error fetching from Firebase:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [collectionName]);
+
+  return { data, loading, error };
+};
+
+// --- Custom Hook for User Geolocation ---
+const useUserLocation = () => {
+  const [location, setLocation] = useState(null);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by this browser.");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLocation({
+          longitude: position.coords.longitude,
+          latitude: position.coords.latitude,
+        });
+      },
+      (err) => {
+        setError(`Could not get user location: ${err.message}`);
+      }
+    );
+  }, []);
+
+  return { location, error };
+};
+
+// --- Reusable Popup Component ---
 function PopupComponent({ data }) {
+  // Added optional chaining `?.` to prevent errors if `data.title` is missing
   return (
     <div className="popup flex-col items-center">
-      {/* // <div>
-      //   <span class="relative isolate inline-flex items-center justify-center">
-      //     <span class="animate-scale absolute z-0 h-8 w-8 rounded-full bg-indigo-400/60"></span>
-      //     <span class="animate-scale animation-delay-1000 absolute z-10 h-8 w-8 rounded-full bg-indigo-400/60"></span>
-      //   </span>
-      // </div> */}
-
-      <h3 className=" font-sans text-lg ">{data.title.toUpperCase()}</h3>
+      <h3 className="font-sans text-lg">{data.title?.toUpperCase()}</h3>
       <p className="font-sans text-sm">{data.description}</p>
     </div>
   );
 }
 
+// --- Main Map Component ---
 function Map() {
-  //   const dbInstance = collection(database, "accidents");
+  const { data: markerData, loading: dataLoading } = useFirebaseData("fire");
+  const { location: userLocation, error: locationError } = useUserLocation();
 
-  //   const getNotes = () => {
-  //     getDocs(dbInstance)
-  //         .then((data) => {
-  //             console.log(data.docs.map((item) => {
-  //                 return { ...item.data(), id: item.id }
-  //             }));
-  //         })
-  //     }
+  // Use refs to hold the map instance and container DOM element
+  const mapContainer = useRef(null);
+  const map = useRef(null);
 
-  const [markerData, setmarkerData] = useState([{}]);
-  const [Location, setLocation] = useState([]);
-  const [corods, setcorods] = useState([]);
+  // Effect to initialize the map once user location is available
+  useEffect(() => {
+    // Only run if the map hasn't been initialized and we have the user's location
+    if (map.current || !mapContainer.current || !userLocation) return;
 
-  const fetchPost = async () => {
-    const db = getFirestore();
-    await getDocs(collection(db, "fire")).then((querySnapshot) => {
-      const newData = querySnapshot.docs.map((doc) => ({
-        ...doc.data(),
-        id: doc.id,
-      }));
-      console.log("hiii",newData[0].location)
-      setmarkerData(newData);
-      setLocation(
-        newData
-          .filter((person) => person.location !== "")
-          .map((person) => person.location)
-      );
+    map.current = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/dark-v11",
+      center: [userLocation.longitude, userLocation.latitude],
+      zoom: 12,
+      attributionControl: false,
     });
-  };
 
-  useEffect(() => {
-    fetchPost();
-    // console.log(markerData)
-
-    // console.log(corods)
-    // console.log(markerData)
-  }, []);
-
-  useEffect(() => {
-    setcorods(Location.map((item) => [item?.longitude, item?.latitude]));
-  }, [Location]);
-
-  // let cordinaates =[[76.3289828 , 10.0298734],[76.3570,10.1004],[76.3125,10.0261]]
-  // console.log( Location.map((item) => [item.longitude, item.latitude]));
-
-  // console.log(corods)
-  // console.log(markerData)
-
-  // console.log(Location)
-  // useEffect(() => {
-  //   const coordinatess = Location.map((item) => [item.longitude, item.latitude]);
-
-  // }, [Location]);
-
-  // console.log(corods)
-
-  let longitude, latitude;
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        (latitude = position.coords.latitude),
-          (longitude = position.coords.longitude);
-        // console.log(latitude,longitude)
-      },
-      (error) => {
-        console.log(error);
-      }
+    // Add map controls
+    map.current.addControl(new mapboxgl.NavigationControl(), "bottom-right");
+    map.current.addControl(
+      new mapboxgl.GeolocateControl({
+        positionOptions: { enableHighAccuracy: true },
+        trackUserLocation: true,
+        showUserHeading: true,
+      }),
+      "bottom-right"
     );
-  } else {
-    console.log("Geolocation is not supported by this browser.");
-  }
-  // console.log(latitude,longitude)
+  }, [userLocation]); // This effect only depends on the user's location
 
-  function saveLocationData() {}
-
+  // Effect to add markers to the map when data is fetched
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      const map = new mapboxgl.Map({
-        container: "map",
-        style: "mapbox://styles/mapbox/dark-v11",
-        attributionControl: false,
-        // style:'mapbox://styles/mapbox/dark-v11',
-        center: [position.coords.longitude, position.coords.latitude],
-        zoom: 12,
-      });
+    // Only run if the map is initialized and we have marker data
+    if (!map.current || !markerData.length) return;
 
-      // const marker = new mapboxgl.Marker({
-      //   color: "#ff0000",
-      //   draggable: true
-      //   }).setLngLat( [position.coords.longitude, position.coords.latitude])
-      //   .setPopup(new mapboxgl.Popup().setHTML("<h1>Hello World!</h1>"))
-      //   .addTo(map);
+    markerData.forEach((item) => {
+      // Ensure the location data is valid before creating a marker
+      if (item.location?.latitude && item.location?.longitude) {
+        // Create a custom HTML element for the marker for custom styling
+        const el = document.createElement("div");
+        el.className = "marker"; // Add a 'marker' class for CSS styling
 
-      map.addControl(new mapboxgl.NavigationControl(), "bottom-right");
-      map.addControl(
-        new mapboxgl.GeolocateControl({
-          positionOptions: {
-            enableHighAccuracy: true,
-          },
-          trackUserLocation: true,
-          showUserHeading: true,
-        }),
-        "bottom-right"
-      );
-
-      let el = document.createElement("div");
-      const markers = markerData.map((obj) => {
-        el = document.createElement("div");
-        el.className = "marker";
-        if (obj.location?.latitude) {
-          return new mapboxgl.Marker(el)
-            .setLngLat([obj.location.longitude, obj.location.latitude])
-            .setPopup(
-              new mapboxgl.Popup({ closeOnClick: false }).setHTML(
-                ReactDOMServer.renderToString(
-                  <PopupComponent data={obj} key={obj.id} />
-                )
+        new mapboxgl.Marker(el)
+          .setLngLat([item.location.longitude, item.location.latitude])
+          .setPopup(
+            new mapboxgl.Popup({ closeOnClick: false }).setHTML(
+              ReactDOMServer.renderToString(
+                <PopupComponent data={item} key={item.id} />
               )
             )
-            .addTo(map);
-        }
-      });
-      // const markers = markerData?.map((obj) => {
-      //   console.log(obj.location.latitude)
-      // });
-      // if (markerData) {
-
-      //   markerData.map((obj) => {
-      //     if (obj.location?.latitude) {
-      //       const htmlString = ReactDOMServer.renderToString(<PopupComponent data={obj} key={obj.id} />);
-
-      //       return (new mapboxgl.Marker(
-      //               {color: "#ff0000"}
-
-      //       ).setLngLat([obj.location.longitude,obj.location.latitude])
-      //       .setPopup(new mapboxgl.Popup({ closeOnClick: false }).setText(obj.title)
-
-      //       .addTo(map)));
-
-      //     }
-      //       // console.log(obj.location?.latitude)}
-      //   else {
-      //     console.log("no location");
-      //   }
-
-      // });
-      // }
-
-      //       const markers = markerData?.map((obj) => {
-      //   if (obj.location.latitude) {
-      //       // return (new mapboxgl.Marker().setLngLat([obj.location.longitude,obj.location.latitude]).addTo(map));}
-      //       console.log(obj.location.latitude)}
-      //   else {
-      //     console.log("no location");
-      //   }
-
-      // });
+          )
+          .addTo(map.current);
+      }
     });
-  }, [corods]);
+  }, [markerData]); // This effect only depends on the marker data
 
-  return (
-    <>
-      <div
-        id="map"
-        className="absolute inset-0 m-0 overflow-hidden z-100 shadow-md  rounded-1xl "
-      ></div>
-    </>
-  );
+  if (locationError) {
+    return <div className="error-message">{locationError}</div>;
+  }
+
+  return <div ref={mapContainer} className="absolute inset-0 m-0 z-10" />;
 }
 
 export default Map;
