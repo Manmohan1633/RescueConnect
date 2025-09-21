@@ -1,13 +1,26 @@
+import CameraCapture from '../components/CameraCapture';
 import { useState, useEffect } from "react";
 
+
 import { app, database, db, storage } from "../config/firebase";
-import { collection, addDoc, getDocs, getFirestore } from "firebase/firestore";
+import { collection, addDoc, Timestamp } from "firebase/firestore";
 import { useRouter } from "next/router";
 
 import { uploadBytes, getDownloadURL, listAll, list } from "firebase/storage";
 import { getStorage, ref } from "firebase/storage";
 import Sidebar from "../components/sidebar/Sidebar";
 import Loader from "../components/loader/Loader";
+
+const validate = (values) => {
+  const errors = {};
+  if (!values.title) {
+    errors.title = "Title is required.";
+  }
+  if (!values.description) {
+    errors.description = "Description is required.";
+  }
+  return errors;
+};
 
 export default function AddDistressForm() {
   const [file, setFile] = useState(null);
@@ -38,6 +51,8 @@ export default function AddDistressForm() {
   }
 
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [locationError, setLocationError] = useState(null);
 
   useEffect(() => {
     // Get the user's current location using the Geolocation API
@@ -52,7 +67,7 @@ export default function AddDistressForm() {
   const router = useRouter();
 
   const initialValues = {
-    tittle: "",
+    title: "",
     description: "",
     intensity: "",
     location: "",
@@ -80,11 +95,52 @@ export default function AddDistressForm() {
     setFormValues({ ...formValues, [name]: checked });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setFormErrors(validate(formValues));
-    setIsSubmit(true);
-  };
+  // This is the new handleSubmit function with logs
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  console.log("STEP 1: Submit button clicked.");
+
+  const errors = validate(formValues);
+  setFormErrors(errors);
+
+  if (Object.keys(errors).length > 0) {
+    console.log("STEP 2: Form has validation errors. Submission stopped.", errors);
+    return;
+  }
+
+  console.log("STEP 3: Validation passed. Starting submission process...");
+  setIsSubmitting(true);
+
+  try {
+    let imageUrl = "";
+    if (file) {
+      console.log("STEP 4: File found. Uploading to Firebase Storage...");
+      const imageRef = ref(storage, `images/${Date.now()}_${file.name}`);
+      const snapshot = await uploadBytes(imageRef, file);
+      imageUrl = await getDownloadURL(snapshot.ref);
+      console.log("STEP 5: File upload successful. URL:", imageUrl);
+    }
+
+    const dataToSend = {
+      ...formValues,
+      imageurl: imageUrl,
+      location: currentLocation,
+      datetime: Timestamp.now(),
+      status: "NEW",
+    };
+    console.log("STEP 6: Data prepared. Saving to Firestore...");
+
+    await addDoc(collection(database, "fire"), dataToSend);
+    console.log("STEP 7: Data saved to Firestore successfully!");
+
+    console.log("STEP 8: Redirecting to dashboard...");
+    router.push("/dashboard");
+
+  } catch (error) {
+    console.error("!!! SUBMISSION FAILED WITH AN ERROR:", error);
+    setIsSubmitting(false);
+  }
+};
 
   const formhandler = () => {
     const dbInstance = collection(database, "fire");
@@ -134,208 +190,126 @@ export default function AddDistressForm() {
   };
 
   return (
-    <div className=" flex flex-col justify-center items-center m-auto h-full w-full ">
-      {/* {Object.keys(formErrors).length === 0 && isSubmit ? (
-                <div className="ui message success">Signed in successfully</div>
-              ) : (
-                <pre className=" w-[70%]   text-lg ">
-                  {JSON.stringify(formValues, undefined, 2)}
-                </pre>
-              )}
-              <form className="w-[70%]  text-lg p-20 border-1 border-slate-300 rounded bg-slate-100 justify-center items-center">
-                <h1>report accident form</h1>
-                <div className="ui divider"></div>
-                <div className="ui form">
-                  <div className="field">
-                    <label>Tittle</label>
-                    <input
-                      type="text"
-                      name="tittle"
-                      placeholder="Tittle"
-                      value={formValues.tittle}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <p>{formErrors.username}</p>
-                  <div className="field">
-                    <label>description</label>
-                    <input
-                      type="text"
-                      name="description"
-                      placeholder="description"
-                      value={formValues.description}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <p>{formErrors.email}</p>
-                  <div className="field">
-                    <label>Intensity</label>
-                    <input
-                      type="range"
-                      name="intensity"
-                      placeholder="Tittle"
-                      value={formValues.intensity}
-                      onChange={handleChange}
-                      min="1"
-                      max="10"
-                    />
-                  </div>
-                  <div className="flex">
-                    <div className="flex flex-col">
-                      <label>Police</label>
-                      <input
-                        type="checkbox"
-                        checked={formValues.policehelp}
-                        name="policehelp"
-                        onChange={handlecheck}
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label>Ambulance</label>
-                      <input
-                        type="checkbox"
-                        checked={formValues.ambulancehelp}
-                        name="ambulancehelp"
-                        onChange={handlecheck}
-                      />
-                    </div>
-                    <div className="flex flex-col">
-                      <label>Other help</label>
-                      <input
-                        type="checkbox"
-                        checked={formValues.otherhelp}
-                        name="otherhelp"
-                        value={formValues.otherhelp}
-                        onChange={handlecheck}
-                      />
-                    </div>
-             
-                  </div>{" "}
-                </div>
-              </form>{" "}
-              <div>
-                <input
-                  type="file"
-                  onChange={(event) => handleFileInputChange(event)}
-                />
-                <button onClick={() => handleUploadClick(file)}>Upload</button>
-              </div>
-              <button onClick={formhandler} className=" bg-blue-300">
-                Submit
-              </button> */}
-      <div className="bg-white flex gap-4 h-screen rounded shadow-lg p-4 px-4 md:p-8 mb-6">
-        <div className="w-36 m-0 p-0">
-          {" "}
-          <Sidebar />
+    <div className="bg-white flex gap-4 h-screen rounded shadow-lg p-4 px-4 md:p-8 mb-6">
+      <div className="w-36 m-0 p-0">
+        <Sidebar />
+      </div>
+
+      <form onSubmit={handleSubmit} className="grid px-20 mt-10 gap-4 gap-y-2 ml-10 text-sm grid-cols-1 lg:grid-cols-3 w-full">
+        <div className="text-gray-600">
+          <p className="font-medium text-xl">Report accident form</p>
+          <p>Please fill out all the fields.</p>
         </div>
-        <div className="grid px-20 mt-10 gap-4 gap-y-2 ml-10 text-sm grid-cols-1 lg:grid-cols-3">
-          <div className="text-gray-600">
-            <p className="font-medium text-xl">Report accident form</p>
-            <p>Please fill out all the fields.</p>
-          </div>
 
-          <div className="lg:col-span-2">
-            <div className="grid gap-4 gap-y-2 text-sm grid-cols-1 md:grid-cols-5">
-              <div className="md:col-span-5">
-                <label for="full_name">Title</label>
+        <div className="lg:col-span-2">
+          <div className="grid gap-4 gap-y-2 text-sm grid-cols-1 md:grid-cols-5">
+            <div className="md:col-span-5">
+              <label htmlFor="title">Title</label>
+              <input
+                type="text"
+                name="title"
+                id="title"
+                placeholder="Title"
+                value={formValues.title}
+                onChange={handleChange}
+                className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
+              />
+              {formErrors.title && <p className="text-red-500 text-sm mt-1">{formErrors.title}</p>}
+            </div>
+
+            <div className="md:col-span-5">
+              <label htmlFor="description">Description</label>
+              <input
+                type="text"
+                name="description"
+                id="description"
+                placeholder="Description"
+                value={formValues.description}
+                onChange={handleChange}
+                className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
+              />
+              {formErrors.description && <p className="text-red-500 text-sm mt-1">{formErrors.description}</p>}
+            </div>
+            
+            <div className="md:col-span-3">
+              <label htmlFor="intensity">Intensity: {formValues.intensity}</label>
+              <input
+                type="range"
+                name="intensity"
+                id="intensity"
+                value={formValues.intensity}
+                onChange={handleChange}
+                min="1"
+                max="10"
+                className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
+              />
+            </div>
+
+            <div className="flex gap-4 md:col-span-5 bg-red-100 px-5 py-4 rounded-xl">
+              <div className="flex flex-col items-center">
+                <label className="text-lg mb-2">Police</label>
                 <input
-                  type="text"
-                  name="tittle"
-                  placeholder="Tittle"
-                  value={formValues.tittle}
-                  onChange={handleChange}
-                  className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
+                  type="checkbox"
+                  name="policehelp"
+                  checked={formValues.policehelp}
+                  onChange={handlecheck}
+                  className="p-3 border-2 border-black"
                 />
               </div>
-              <div className="md:col-span-5">
-                <p>{formErrors.username}</p>
-
-                <label for="email">Description</label>
+              <div className="flex flex-col items-center">
+                <label className="text-lg mb-2">Fire</label>
                 <input
-                  type="text"
-                  name="description"
-                  placeholder="description"
-                  value={formValues.description}
-                  onChange={handleChange}
-                  className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
+                  type="checkbox"
+                  name="firehelp"
+                  checked={formValues.firehelp}
+                  onChange={handlecheck}
+                  className="p-3 border-2 border-black"
                 />
               </div>
-              <div className="md:col-span-3">
-                <p>{formErrors.email}</p>
-
-                <label for="address">Intencity</label>
+              <div className="flex flex-col items-center">
+                <label className="text-lg mb-2">Ambulance</label>
                 <input
-                  type="range"
-                  name="intensity"
-                  placeholder="Tittle"
-                  value={formValues.intensity}
-                  onChange={handleChange}
-                  min="1"
-                  max="10"
-                  className="h-10 border mt-1 rounded px-4 w-full bg-gray-50"
+                  type="checkbox"
+                  name="ambulancehelp"
+                  checked={formValues.ambulancehelp}
+                  onChange={handlecheck}
+                  className="p-3 border-2 border-black"
                 />
               </div>
-              <div className="flex gap-4  md:col-span-5 bg-red-100 px-5 py-4 rounded-xl">
-                <div className="flex flex-col">
-                  <label className="text-lg mb-2">Police</label>
-                  <input
-                    type="checkbox"
-                    checked={formValues.policehelp}
-                    name="policehelp"
-                    onChange={handlecheck}
-                    className="p-3 border-2 border-black"
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-lg mb-2">Ambulance</label>
-                  <input
-                    type="checkbox"
-                    checked={formValues.ambulancehelp}
-                    name="ambulancehelp"
-                    onChange={handlecheck}
-                  />
-                </div>
-                <div className="flex flex-col">
-                  <label className="text-lg mb-2">Other help</label>
-                  <input
-                    type="checkbox"
-                    checked={formValues.otherhelp}
-                    name="otherhelp"
-                    value={formValues.otherhelp}
-                    onChange={handlecheck}
-                  />
-                </div>
-              </div>{" "}
-              <div className="md:col-span-2 mt-4 bg-slate-200 px-5 py-5 rounded-xl">
-                <div>
-                  <input
-                    type="file"
-                    className="w-full p-4"
-                    onChange={(event) => handleFileInputChange(event)}
-                  />
-                  <button
-                    className="bg-slate-700 px-3 py-2 rounded-xl text-white ml-4"
-                    onClick={() => handleUploadClick(file)}
-                  >
-                    {loading ? <Loader /> :"Upload"}
-
-                  </button>
-                </div>
-              </div>
-              <div className="md:col-span-5 text-left mt-2">
-                <div className="inline-flex items-start">
-                  <button
-                    onClick={formhandler}
-                    className=" bg-red-600 px-6 py-3 text-white rounded-xl"
-                  >
-                    Submit
-                  </button>
-                </div>
+              <div className="flex flex-col items-center">
+                <label className="text-lg mb-2">Other help</label>
+                <input
+                  type="checkbox"
+                  name="otherhelp"
+                  checked={formValues.otherhelp}
+                  onChange={handlecheck}
+                  className="p-3 border-2 border-black"
+                />
               </div>
             </div>
+
+            {/* THIS IS THE NEW CAMERA SECTION */}
+            <div className="md:col-span-5 mt-4">
+              <label className="block text-lg mb-2">Capture Evidence</label>
+              <CameraCapture onCapture={setFile} />
+            </div>
+
+            <div className="md:col-span-5 text-left mt-2">
+              <div className="inline-flex items-start">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-red-600 px-6 py-3 text-white rounded-xl hover:bg-red-700 disabled:bg-gray-400"
+                >
+                  {isSubmitting ? <Loader /> : "Submit"}
+                </button>
+              </div>
+            </div>
+            {locationError && <p className="text-red-500 text-sm mt-2 md:col-span-5">Location Error: {locationError}</p>}
           </div>
         </div>
-      </div>
+      </form>
     </div>
   );
 }
+

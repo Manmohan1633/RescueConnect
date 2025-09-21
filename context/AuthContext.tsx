@@ -1,3 +1,4 @@
+import { useRouter } from 'next/router';
 import { createContext, useContext, useEffect, useState } from "react";
 import {
   onAuthStateChanged,
@@ -18,6 +19,7 @@ export const AuthContextProvider = ({
 }) => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -45,6 +47,7 @@ export const AuthContextProvider = ({
   const logout = async () => {
     setUser(null);
     await signOut(auth);
+    router.push("/");
   };
 
   return (

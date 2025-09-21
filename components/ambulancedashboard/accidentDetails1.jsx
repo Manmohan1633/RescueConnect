@@ -1,7 +1,7 @@
 import React from "react";
 import mapboxgl from 'mapbox-gl';
 
-export default function AccidentsDetails({ tittle, loc, time, status }) {
+export default function AccidentsDetails({ title, loc, time, status }) {
 
 //     const ACCESS_TOKEN = 'pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ';
 // const geocoder = new MapboxGeocoder({
@@ -33,7 +33,7 @@ export default function AccidentsDetails({ tittle, loc, time, status }) {
                 </h3>
               </div>
               <h2 className="font-sans text-left text-white  font-bold tracking-wide  pb-1 ">
-                {tittle ? tittle : "Accident"}
+                {title ? title : "Accident"}
               </h2>
             </div>
 

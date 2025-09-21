@@ -20,7 +20,7 @@ function PopupComponent({ data }) {
       //   </span>
       // </div> */}
 
-      <h3 className=" font-sans text-lg ">{data.tittle.toUpperCase()}</h3>
+      <h3 className=" font-sans text-lg ">{data.title?.toUpperCase()}</h3>
       <p className="font-sans text-sm">{data.description}</p>
     </div>
   );
@@ -162,7 +162,7 @@ function Map() {
       //               {color: "#ff0000"}
 
       //       ).setLngLat([obj.location.longitude,obj.location.latitude])
-      //       .setPopup(new mapboxgl.Popup({ closeOnClick: false }).setText(obj.tittle)
+      //       .setPopup(new mapboxgl.Popup({ closeOnClick: false }).setText(obj.title)
 
       //       .addTo(map)));
 

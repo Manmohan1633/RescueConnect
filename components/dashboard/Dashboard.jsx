@@ -32,10 +32,12 @@ useEffect(() => {
     onValue(temp123, (snapshot) => {
       const tempVal = snapshot.val();
       console.log(tempVal,"value of temp")
+      if (tempVal) {
       const latestTemp =
         Object.values(tempVal);
       setTempr(latestTemp);
       console.log(latestTemp,"what")
+      }
 
 
     });
@@ -45,7 +47,7 @@ useEffect(() => {
 
 
   const initialValues = {
-    tittle: "Fire at household",
+    title: "Fire at household",
     description: "home sesnor detected fire",
     intensity: "4",
     location: { latitude: 12.9141, longitude: 74.8560},

@@ -32,7 +32,7 @@ export default function Dashboard() {
   // }, [temp]);
 
   const initialValues = {
-    tittle: "Fire accident",
+    title: "Fire accident",
     description: "A big building got large fire",
     intensity: "7",
     location: { latitude: 10.0261, longitude: 76.3125 },

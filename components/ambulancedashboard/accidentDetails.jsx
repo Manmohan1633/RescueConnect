@@ -4,7 +4,7 @@ import { app, database } from "../../config/firebase";
 
 
 
-export default function AccidentsDetails({ tittle, loc, time, status,id }) {
+export default function AccidentsDetails({ title, loc, time, status,id }) {
   //     const ACCESS_TOKEN = 'pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ';
   // const geocoder = new MapboxGeocoder({
   //     accessToken: ACCESS_TOKEN
@@ -54,7 +54,7 @@ const handleClick = async () => {
                 </h3>
               </div>
               <h2 className="font-sans text-left text-white  font-bold tracking-wide  pb-1 ">
-                {tittle ? tittle : "Accident"}
+                {title ? title : "Accident"}
               </h2>
             </div>
 

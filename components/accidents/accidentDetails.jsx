@@ -1,8 +1,9 @@
 import React from "react";
 import mapboxgl from 'mapbox-gl';
 import Link from "next/link";
+import { format } from 'date-fns';
 
-export default function AccidentsDetails({ tittle, loc, time, status ,imgurl}) {
+export default function AccidentsDetails({ title, loc, time, status ,imgurl}) {
 
 //     const ACCESS_TOKEN = 'pk.eyJ1IjoiYWxhcGFub3NraSIsImEiOiJjbGVxMjhjbmowaTZpNDVvNWQ4NTBsc2JtIn0.LFIPoIEmYQJv5bfRPueMQQ';
 // const geocoder = new MapboxGeocoder({
@@ -22,6 +23,7 @@ export default function AccidentsDetails({ tittle, loc, time, status ,imgurl}) {
 // });
 
 
+    const localTime = time ? format(new Date(time.seconds ? time.seconds * 1000 : time), 'p') : '';
 
     return (
       <Link href={imgurl ? imgurl : ""}>
@@ -34,7 +36,7 @@ export default function AccidentsDetails({ tittle, loc, time, status ,imgurl}) {
                   {status ? status : "NEW"}
                 </h3>
                 <h2 className="font-sans  text-slate-800 text-5lg content-start font-bold tracking-wide  pb-1 ">
-                  {tittle ? tittle : "Accident"}
+                  {title ? title : "Accident"}
                 </h2>
               </div>
 
@@ -68,7 +70,7 @@ export default function AccidentsDetails({ tittle, loc, time, status ,imgurl}) {
                 </div>
                 {time && typeof time === "string" && (
                   <h2 className="font-sans font-semibold  tracking-wide text-slate-800 ml-1">
-                    {time.substr(11, 8)}
+                    {localTime}
                   </h2>
                 )}
               </div>

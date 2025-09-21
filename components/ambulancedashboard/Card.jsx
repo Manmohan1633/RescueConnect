@@ -49,7 +49,7 @@ export default function Card() {
           {markerData.slice(0,2).map((obj) => (
             <AccidentsDetails
               id={obj.id}
-              tittle={obj.tittle}
+              title={obj.title}
               time={obj.datetime}
               status={obj.status}
               loc={[obj.location?.latitude, obj.location?.longitude]}

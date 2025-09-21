@@ -2,12 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 import firebase from "firebase/app";
 import "firebase/database";
+//import { getAnalytics } from "firebase/analytics";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 import { getDatabase } from "firebase/database";
 
 
-const firebaseConfig = {
+/*const firebaseConfig = {
   apiKey: "AIzaSyBOIVay3_mPI3e5qj6m7-o00b2BPBgIaQY",
   authDomain: "hackverse-5ecdd.firebaseapp.com",
   databaseURL: "https://hackverse-5ecdd-default-rtdb.firebaseio.com",
@@ -17,8 +18,21 @@ const firebaseConfig = {
   appId: "1:316801498344:web:f70c7cb41d44f5bcf21d5d",
   measurementId: "G-E8W4PT6DS5"
 };
+*/
+
+const firebaseConfig = {
+  apiKey: "AIzaSyATQnK1GiGabdnrFYu5L4JuEPkg2iN-gHw",
+  authDomain: "rescueconnect-cc2f7.firebaseapp.com",
+  databaseURL: "https://rescueconnect-cc2f7-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "rescueconnect-cc2f7",
+  storageBucket: "rescueconnect-cc2f7.firebasestorage.app",
+  messagingSenderId: "719789687790",
+  appId: "1:719789687790:web:efbc53970fd2e7471104ff",
+  measurementId: "G-0JCM34M29D"
+};
 
 const app = initializeApp(firebaseConfig);
+//export const analytics = typeof window !== 'undefined' ? getAnalytics(app) : null;
 export const auth = getAuth(app);
 export const database = getFirestore(app);
 export const storage = getStorage(app);
