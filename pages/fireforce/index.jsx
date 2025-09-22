@@ -13,7 +13,7 @@ export default function index() {
         <header className="h-[75%]">
           <div className="px-5">
             <h1 class="text-3xl ml-1 font-semibold leading-loose text-red-300">
-              Fire force Dashboard
+              Fire Brigade Dashboard
             </h1>
             <div class="text-gray-200 ml-1 mb-6">{date}</div>
           </div>
