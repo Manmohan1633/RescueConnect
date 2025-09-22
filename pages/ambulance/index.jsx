@@ -1,7 +1,7 @@
 import React from 'react'
-import Sidebar from "../../components/ambulancedashboard/Sidebar";
-import StatsCard from '../../components/ambulancedashboard/StatsCard'
-import MostOrdered from '../../components/ambulancedashboard/MostOrdered'
+import Sidebar from "../../components/accidentdashboard/Sidebar";
+import StatsCard from '../../components/accidentdashboard/StatsCard'
+import RecentAccidents from '../../components/accidentdashboard/RecentAccidents'
 import Map from '../../components/map/mapadmin'
 
 export default function index() {
@@ -27,7 +27,7 @@ export default function index() {
         </header>
       </main>
       <aside class="flex flex-col gap-y-6 pt-16 sm:pt-6 pr-6 w-full sm:w-96">
-        <MostOrdered />
+        <RecentAccidents />
       </aside>
     </div>
   );

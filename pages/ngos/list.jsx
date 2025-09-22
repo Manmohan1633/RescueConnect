@@ -7,6 +7,7 @@ import AccidentsDetails from "../../components/accidentdashboard/accidentDetails
 import Tabs from "../../components/accidents/tabs"; // The filter tabs
 
 // --- Custom Hook to Fetch and Manage All Accident Data ---
+// This keeps your data logic separate and reusable.
 const useAccidentsData = () => {
   const [accidents, setAccidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,6 +17,7 @@ const useAccidentsData = () => {
     setLoading(true);
     try {
       const db = getFirestore();
+      // Query to get all documents, ordered by the newest first
       const q = query(collection(db, "fire"), orderBy("datetime", "desc"));
       const querySnapshot = await getDocs(q);
       const newData = querySnapshot.docs.map((doc) => ({
@@ -35,6 +37,7 @@ const useAccidentsData = () => {
     fetchAccidents();
   }, []);
 
+  // useMemo efficiently recalculates the counts only when the accidents list changes.
   const statusCounts = useMemo(() => {
     return accidents.reduce(
       (counts, acc) => {
@@ -56,17 +59,10 @@ export default function PoliceListPage() {
   const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
   const [filter, setFilter] = useState("All");
 
-  // --- THIS IS THE FIX ---
-  // The filtering logic is now case-insensitive.
+  // Memoize the filtered list for better performance
   const filteredAccidents = useMemo(() => {
-    // First, check for "All" in a case-insensitive way
-    if (filter.toLowerCase() === "all") {
-      return accidents;
-    }
-    // Then, filter the accidents by comparing both status and filter in lowercase
-    return accidents.filter((acc) => 
-      (acc.status || "NEW").toLowerCase() === filter.toLowerCase()
-    );
+    if (filter === "All") return accidents;
+    return accidents.filter((acc) => (acc.status || "NEW") === filter);
   }, [accidents, filter]);
 
   const formattedDate = new Date().toString();
@@ -78,21 +74,25 @@ export default function PoliceListPage() {
       {/* Main Content Area */}
       <main className="flex flex-1 flex-col gap-6 p-6 overflow-y-auto">
         
+        {/* Corrected Header */}
         <header>
           <h1 className="text-3xl font-semibold leading-loose text-red-400">
-            Police Accident List
+            NGOs Accident List
           </h1>
           <p className="text-gray-400">{formattedDate}</p>
         </header>
 
+        {/* Stats Cards */}
         <div>
           <StatsCard counts={statusCounts} />
         </div>
         
+        {/* Filtering Tabs */}
         <div>
             <Tabs onTabChange={setFilter} />
         </div>
 
+        {/* --- Corrected Accident List Container --- */}
         <div className="flex-grow rounded-2xl bg-gray-800/50 p-2">
             {loading && <p className="py-4 text-center text-gray-400">Loading incidents...</p>}
             {error && <p className="py-4 text-center text-red-400">Could not load incidents.</p>}

@@ -1,9 +1,9 @@
 import React from "react";
-import Sidebar from "../../components/ambulancedashboard/Sidebar1";
-import StatsCard from "../../components/ambulancedashboard/StatsCard";
-import MostOrdered from "../../components/ambulancedashboard/MostOrdered";
+import Sidebar from "../../components/accidentdashboard/Sidebar1";
+import StatsCard from "../../components/accidentdashboard/StatsCard";
+import RecentAccidents from "../../components/accidentdashboard/RecentAccidents";
 
-import Card from "../../components/ambulancedashboard/Card1";
+import Card from "../../components/accidentdashboard/Card1";
 
 export default function list() {
         const date = Date();
@@ -28,7 +28,7 @@ export default function list() {
         </header>
       </main>
       <aside class="flex flex-col gap-y-6 pt-6 pr-6 w-96">
-        <MostOrdered />
+        <RecentAccidents />
       </aside>
     </div>
   );

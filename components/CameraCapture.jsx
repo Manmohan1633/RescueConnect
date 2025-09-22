@@ -22,7 +22,7 @@ const CameraCapture = ({ onCapture }) => {
 
     try {
       // Prioritize the back camera ('environment') for mobile devices
-      const mediaStream = await navigator.mediaDevices.getUserMedia({ 
+      const mediaStream = await navigator.mediaDevices.getUserMedia({
         video: { facingMode: 'environment' }
       });
       setStream(mediaStream);
@@ -47,7 +47,7 @@ const CameraCapture = ({ onCapture }) => {
       canvas.height = video.videoHeight;
       const context = canvas.getContext('2d');
       context.drawImage(video, 0, 0, canvas.width, canvas.height);
-      
+
       canvas.toBlob((blob) => {
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
@@ -61,25 +61,25 @@ const CameraCapture = ({ onCapture }) => {
 
   return (
     <div className="w-full rounded-lg border bg-gray-50 p-4 text-center">
-      
-      {/* --- Unified Preview Box --- */}
-      <div className="flex h-64 w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-black overflow-hidden">
+
+      {/* --- Unified Preview Box (Slightly larger) --- */}
+      <div className="flex h-80 w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-black overflow-hidden">
         {!stream && !capturedImage && (
           <p className="text-gray-400">Camera preview will appear here</p>
         )}
         {stream && (
-          <video 
-            ref={videoRef} 
-            autoPlay 
-            playsInline 
-            muted 
+          <video
+            ref={videoRef}
+            autoPlay
+            playsInline
+            muted
             className="h-full w-full object-cover"
           />
         )}
         {capturedImage && (
-          <img 
-            src={capturedImage} 
-            alt="Captured preview" 
+          <img
+            src={capturedImage}
+            alt="Captured preview"
             className="h-full w-full object-cover"
           />
         )}

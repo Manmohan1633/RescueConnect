@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { collection, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
 
-import Sidebar from "../../components/accidentdashboard/Sidebar21"; // Ensure this is the correct Sidebar for Fire Brigade
+import Sidebar from "../../components/accidentdashboard/Sidebar3"; // Ensure paths are correct
 import StatsCard from "../../components/accidentdashboard/StatsCard";
-import RecentAccidents from "../../components/accidentdashboard/RecentAccidents";
+import RecentAccidents from "../../components/accidentdashboard/RecentAccidents"; // This is your "Recent accidents" card
 import Map from "../../components/map/mapadmin";
 
 // --- Custom Hook to Fetch and Manage All Accident Data ---
-// This centralizes your data fetching logic for this page.
 const useAccidentsData = () => {
   const [accidents, setAccidents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,31 +45,38 @@ const useAccidentsData = () => {
         }
         return counts;
       },
-      { NEW: 0, PENDING: 0, DONE: 0 }
+      { NEW: 0, PENDING: 0, DONE: 0 } // Use the exact status names from your DB
     );
   }, [accidents]);
 
   return { accidents, loading, error, statusCounts, refreshAccidents: fetchAccidents };
 };
 
-// --- Main Fire Brigade Dashboard Component ---
-export default function FireBrigadeDashboard() {
+// --- Main Police Dashboard Component ---
+export default function PoliceDashboard() {
+  // Fetch all data and counts using our custom hook
   const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
+  
+  // State for the live-updating time
   const [currentTime, setCurrentTime] = useState(new Date());
 
+  // Effect to update the time every second
   useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    // Cleanup function to stop the timer
     return () => clearInterval(timer);
   }, []);
 
+  // Format the date and time for display
   const formattedDateTime = currentTime.toLocaleString('en-US', {
     dateStyle: 'full',
     timeStyle: 'medium',
   });
 
   return (
-    // --- THIS IS THE CORRECTED LAYOUT ---
-    <div className="flex h-screen w-full font-sans bg-gray-800 text-white">
+    <div className="flex h-screen w-full font-sans bg-slate-800 text-white">
       <Sidebar />
 
       {/* Main Content Area */}
@@ -78,30 +84,32 @@ export default function FireBrigadeDashboard() {
         
         <header>
           <h1 className="text-3xl font-semibold leading-loose text-red-400">
-            Fire Brigade Dashboard
+            NGOs Dashboard
           </h1>
           <p className="text-gray-400">{formattedDateTime}</p>
         </header>
 
-        {/* Stats Cards receive the dynamic counts */}
+        {/* Stats Cards now receive the calculated counts */}
         <div>
           <StatsCard counts={statusCounts} />
         </div>
         
-        {/* The map fills the remaining space and receives live data */}
+        {/* The map now takes up the remaining space and receives the accident data */}
         <div className="relative flex-grow rounded-2xl shadow-md overflow-hidden">
           <Map accidents={accidents} />
         </div>
       </main>
 
       {/* Aside for Recent Accidents */}
-      <aside className="flex w-96 flex-col gap-y-6 p-6">
-        {/* This component receives the data, a refresh function, and the correct "View all" link */}
+      <aside className="flex w-[30rem] flex-col gap-y-6 p-6 pr-6">
+        
+        {/* --- THIS IS THE FIX --- */}
+        {/* Pass the 'listPageUrl' prop to the RecentAccidents component */}
         <RecentAccidents 
             accidents={accidents} 
             loading={loading} 
             onUpdate={refreshAccidents}
-            listPageUrl="/firefoce/list"
+            listPageUrl="/ngos/list" 
         />
       </aside>
     </div>

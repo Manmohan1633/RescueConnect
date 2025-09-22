@@ -1,33 +1,109 @@
-import React from "react";
-import Sidebar from "../../components/ambulancedashboard/Sidebar31";
-import StatsCard from "../../components/ambulancedashboard/StatsCard";
-import MostOrdered from "../../components/ambulancedashboard/MostOrdered";
-import Card from "../../components/ambulancedashboard/Card1";
+import React, { useState, useEffect, useMemo } from "react";
+import { collection, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
 
+import Sidebar from "../../components/accidentdashboard/Sidebar31"; // Ensure this is the correct Sidebar
+import StatsCard from "../../components/accidentdashboard/StatsCard";
+import RecentAccidents from "../../components/accidentdashboard/RecentAccidents";
+import Map from "../../components/map/mapadmin"; // Assuming the admin map is used here
 
-export default function index() {
-  const date = Date();
+// --- Custom Hook to Fetch and Manage All Accident Data ---
+// This centralizes your data fetching logic for this page.
+const useAccidentsData = () => {
+  const [accidents, setAccidents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchAccidents = async () => {
+    setLoading(true);
+    try {
+      const db = getFirestore();
+      const q = query(collection(db, "fire"), orderBy("datetime", "desc"));
+      const querySnapshot = await getDocs(q);
+      const newData = querySnapshot.docs.map((doc) => ({
+        ...doc.data(),
+        id: doc.id,
+      }));
+      setAccidents(newData);
+    } catch (err) {
+      console.error("Error fetching accidents:", err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAccidents();
+  }, []);
+
+  // useMemo efficiently recalculates the counts only when the accidents list changes.
+  const statusCounts = useMemo(() => {
+    return accidents.reduce(
+      (counts, acc) => {
+        const status = acc.status || "NEW";
+        if (status in counts) {
+          counts[status]++;
+        }
+        return counts;
+      },
+      { NEW: 0, PENDING: 0, DONE: 0 }
+    );
+  }, [accidents]);
+
+  return { accidents, loading, error, statusCounts, refreshAccidents: fetchAccidents };
+};
+
+// --- Main Fire Brigade Dashboard Component ---
+export default function FireBrigadeDashboard() {
+  const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedDateTime = currentTime.toLocaleString('en-US', {
+    dateStyle: 'full',
+    timeStyle: 'medium',
+  });
+
   return (
-    <div class="flex flex-col sm:flex-row w-full min-h-screen font-sans bg-gray-800">
+    // --- THIS IS THE CORRECTED LAYOUT ---
+    <div className="flex h-screen w-full font-sans bg-gray-800 text-white">
       <Sidebar />
-      <main class="flex flex-col flex-1 gap-6 p-4">
-        <header className="h-[75%]">
-          <div className="px-5">
-            <h1 class="text-3xl ml-1 font-semibold leading-loose text-red-300">
-              Ambulance Dashboard
-            </h1>
-            <div class="text-gray-200 ml-1 mb-6">{date}</div>
-          </div>
-          <div className="px-5">
-            <StatsCard />
-          </div>
-          <div className="relative mt-6 h-full w-full px-20 justify-start flex m-0 p-0 shadow-md rounded-2xl">
-            <Card />
-          </div>
+
+      {/* Main Content Area */}
+      <main className="flex flex-1 flex-col gap-6 p-6 overflow-hidden">
+        
+        <header>
+          <h1 className="text-3xl font-semibold leading-loose text-red-300">
+            FireBrigade Dashboard
+          </h1>
+          <p className="text-gray-400">{formattedDateTime}</p>
         </header>
+
+        {/* Stats Cards now receive the dynamic counts */}
+        <div>
+          <StatsCard counts={statusCounts} />
+        </div>
+        
+        {/* The map fills the remaining space and receives live data */}
+        <div className="relative flex-grow rounded-2xl shadow-md overflow-hidden">
+          {/* We now pass the fetched accidents array to the Map component */}
+          <Map accidents={accidents} />
+        </div>
       </main>
-      <aside class="flex flex-col gap-y-6 pt-6 pr-6 w-96">
-        <MostOrdered />
+
+      {/* Aside for Recent Accidents */}
+      <aside className="flex w-96 flex-col gap-y-6 p-6">
+        {/* This component receives data, a refresh function, and the correct "View all" link */}
+        <RecentAccidents 
+            accidents={accidents} 
+            loading={loading} 
+            onUpdate={refreshAccidents}
+            listPageUrl="/fireforce/list"
+        />
       </aside>
     </div>
   );
