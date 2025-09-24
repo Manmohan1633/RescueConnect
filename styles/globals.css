@@ -90,3 +90,11 @@ body {
 }
 
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap');
+
+/* Add this to your global CSS file */
+.shadow-inverse-top {
+  box-shadow: 0 -10px 0 0 #1f2937; /* The color should match the active background (bg-gray-800) */
+}
+.shadow-inverse-bottom {
+  box-shadow: 0 10px 0 0 #1f2937; /* The color should match the active background (bg-gray-800) */
+}

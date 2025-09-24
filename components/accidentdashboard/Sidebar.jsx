@@ -1,51 +1,71 @@
-import { useState } from "react";
+import React from "react";
 import Link from "next/link";
-import { useAuth } from "../../context/AuthContext";
+import { useRouter } from "next/router";
+import { useAuth } from "../../context/AuthContext"; // Ensure this path is correct
+import clsx from "clsx"; // A utility for conditionally joining class names. Install with: npm install clsx
 
-export default function Sidebar() {
-  const [activeMenu, setActiveMenu] = useState("Graph");
-      const { user, logout } = useAuth();
-
-  const menus = [
-    { name: "Dashboard", icon: "/admin/home.svg" },
-    { name: "Discounts", icon: "/admin/discount.svg" },
-    { name: "Graph", icon: "/admin/graph.svg" },
-    { name: "Messages", icon: "/admin/message.svg" },
-    { name: "Notifications", icon: "/admin/notification.svg" },
-    { name: "Settings", icon: "/admin/settings.svg" },
-    { name: "Logout", icon: "/admin/logout.svg" },
-  ];
+// --- A Reusable Nav Item Component ---
+// This component contains the logic for displaying a single link and its active state.
+const NavItem = ({ href, icon, alt, isActive }) => {
+  // The complex "scoop" effect styling is now in one place.
+  const activeClasses = "bg-gray-800 before:shadow-inverse-top after:shadow-inverse-bottom";
 
   return (
-    <div className="flex flex-row sm:flex-col  gap-y-4 items-center py-2 sm:py-8 w-full sm:w-24 bg-gray-900">
-      <button className="p-2 bg-opacity-20 rounded-xl bg-primary">
-        <Link href="/">
-          <img src="/logo-icon.png" className="w-20 sm:w-full"/>
-        </Link>
-      </button>
-      <div className="flex flex-row sm:flex-col gap-y-4 items-end self-end">
-        <div className="bg-gray-800 rounded-l-xl relative before:absolute before:w-4 before:h-8 before:-top-8 before:rounded-br-xl before:right-0 before:shadow-inverse-top  after:absolute after:w-4 after:h-8 after:-bottom-8 after:rounded-tr-xl after:right-0 after:shadow-inverse-bottom">
-          <Link href="/ambulance">
-            <button className="p-4 my-4 mr-4 ml-3 rounded-xl ">
-              <img src="https://img.icons8.com/ios-glyphs/40/ffffff/home-page--v1.png" />{" "}
-            </button>
-          </Link>
-        </div>
-        <div className="hover:bg-gray-800 rounded-l-xl relative before:absolute before:w-4 before:h-8 before:-top-8 before:rounded-br-xl before:right-0 before:shadow-inverse-top  after:absolute after:w-4 after:h-8 after:-bottom-8 after:rounded-tr-xl after:right-0 after:shadow-inverse-bottom">
-          <Link href="/ambulance/list">
-            <button className="p-4 my-4 mr-4 ml-3 rounded-xl ">
-              <img src="https://img.icons8.com/ios-filled/50/ffffff/traffic-accident.png" />{" "}
-                      </button>
-              
-                  </Link>
-                  </div>
-                        <div className="hover:bg-gray-800 rounded-l-xl relative before:absolute before:w-4 before:h-8 before:-top-8 before:rounded-br-xl before:right-0 before:shadow-inverse-top  after:absolute after:w-4 after:h-8 after:-bottom-8 after:rounded-tr-xl after:right-0 after:shadow-inverse-bottom">
+    <div
+      className={clsx(
+        "relative rounded-l-xl transition-colors hover:bg-gray-800/50",
+        // These classes create the "scoop" effect. You need the custom CSS below for them to work.
+        "before:absolute before:right-0 before:-top-8 before:h-8 before:w-4 before:rounded-br-xl",
+        "after:absolute after:right-0 after:-bottom-8 after:h-8 after:w-4 after:rounded-tr-xl",
+        { [activeClasses]: isActive } // Apply active styles only if isActive is true
+      )}
+    >
+      <Link href={href} className="block p-4 my-4 ml-3 mr-4 rounded-xl" title={alt}>
+        <img src={icon} alt={alt} className="h-8 w-8" />
+      </Link>
+    </div>
+  );
+};
 
-          <button onClick={logout} className="p-4 my-4 mr-4 ml-3 rounded-xl ">
-            <img src="https://img.icons8.com/ios-filled/50/ffffff/logout-rounded.png" />{" "}
-              </button>
-              </div>
-        </div>
+// --- THIS IS THE MAIN FIX ---
+// The Sidebar now accepts a `menuItems` prop. It no longer has its own hardcoded links.
+export default function Sidebar({ menuItems = [] }) {
+  const { logout } = useAuth();
+  const router = useRouter(); // Get the current path to determine the active link
+
+  const logoutItem = {
+    name: "Logout",
+    action: logout,
+    icon: "https://img.icons8.com/ios-filled/50/ffffff/logout-rounded.png",
+  };
+
+  return (
+    <div className="flex h-screen w-24 flex-col items-center justify-between bg-gray-900 py-8">
+      
+      {/* Logo */}
+      <Link href="/" className="p-2">
+        <img src="/logo-icon.png" alt="Logo" className="w-full rounded-lg" />
+      </Link>
+      
+      {/* Navigation Links are now built from the 'menuItems' prop passed by the parent page */}
+      <nav className="flex flex-col gap-y-4">
+        {menuItems.map((item) => (
+            <NavItem
+              key={item.name}
+              href={item.href}
+              icon={item.icon}
+              alt={item.name}
+              isActive={router.pathname === item.href} // Automatically highlight the active link
+            />
+        ))}
+      </nav>
+      
+      {/* Logout Button is separate to ensure it's always at the bottom */}
+      <div className="hover:bg-gray-800/50 rounded-l-xl">
+         <button onClick={logoutItem.action} className="p-4 my-4 ml-3 mr-4 rounded-xl" title={logoutItem.name}>
+            <img src={logoutItem.icon} alt={logoutItem.name} className="h-8 w-8"/>
+         </button>
+      </div>
     </div>
   );
 }

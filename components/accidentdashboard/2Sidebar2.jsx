@@ -2,8 +2,8 @@ import Link from "next/link";
 import React from "react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { useAuth } from "../../context/AuthContext";
-import AddDistress from "../../components/button/AddDistress.jsx";
+import { useAuth } from "../../context/AuthContext.js";
+import AddDistress from "../button/AddDistress.jsx";
 
 
 export default function Sidebaruser() {

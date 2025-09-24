@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { collection, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
 
-import Sidebar from "../../components/accidentdashboard/Sidebar3"; // Ensure paths are correct
+import Sidebar from "../../components/accidentdashboard/Sidebar"; // Ensure paths are correct
 import StatsCard from "../../components/accidentdashboard/StatsCard";
-import AccidentsDetails from "../../components/accidentdashboard/accidentDetails"; // The detail card for each accident
-import Tabs from "../../components/accidents/tabs"; // The filter tabs
+import AccidentsDetails from "../../components/accidentdashboard/accidentDetails";
+import Tabs from "../../components/accidents/tabs";
 
 // --- Custom Hook to Fetch and Manage All Accident Data ---
 const useAccidentsData = () => {
@@ -56,50 +56,70 @@ export default function PoliceListPage() {
   const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
   const [filter, setFilter] = useState("All");
 
-  // --- THIS IS THE FIX ---
-  // The filtering logic is now case-insensitive.
-  const filteredAccidents = useMemo(() => {
-    // First, check for "All" in a case-insensitive way
-    if (filter.toLowerCase() === "all") {
-      return accidents;
-    }
-    // Then, filter the accidents by comparing both status and filter in lowercase
-    return accidents.filter((acc) => 
-      (acc.status || "NEW").toLowerCase() === filter.toLowerCase()
-    );
-  }, [accidents, filter]);
+  // --- THIS IS THE FIX (Part 1) ---
+  // State for the live-updating time
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  const formattedDate = new Date().toString();
+  // Effect to update the time every second
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // Update every second
+
+    // Cleanup function to stop the timer when the component is removed
+    return () => clearInterval(timer);
+  }, []); // Empty array ensures this effect runs only once on mount
+
+  // Format the date and time for a user-friendly display
+  const formattedDateTime = currentTime.toLocaleString('en-US', {
+    dateStyle: 'full',
+    timeStyle: 'medium',
+  });
+
+  const filteredAndSortedAccidents = useMemo(() => {
+    const statusOrder = { "NEW": 1, "PENDING": 2, "DONE": 3 };
+    const filterMap = {
+        "new": "NEW",
+        "pending": "PENDING",
+        "completed": "DONE"
+    };
+    const dbStatusFilter = filterMap[filter.toLowerCase()];
+    const filtered = filter.toLowerCase() === 'all'
+      ? accidents
+      : accidents.filter(acc => (acc.status || "NEW") === dbStatusFilter);
+
+    return [...filtered].sort((a, b) => {
+      const statusA = statusOrder[a.status || "NEW"] || 99;
+      const statusB = statusOrder[b.status || "NEW"] || 99;
+      return statusA - statusB;
+    });
+  }, [accidents, filter]);
 
   return (
     <div className="flex h-screen w-full font-sans bg-gray-900 text-white">
       <Sidebar />
-
-      {/* Main Content Area */}
       <main className="flex flex-1 flex-col gap-6 p-6 overflow-y-auto">
-        
         <header>
           <h1 className="text-3xl font-semibold leading-loose text-red-400">
             Police Accident List
           </h1>
-          <p className="text-gray-400">{formattedDate}</p>
+          {/* --- THIS IS THE FIX (Part 2) --- */}
+          {/* Display the newly formatted, live-updating date and time */}
+          <p className="text-gray-400">{formattedDateTime}</p>
         </header>
-
         <div>
           <StatsCard counts={statusCounts} />
         </div>
-        
         <div>
-            <Tabs onTabChange={setFilter} />
+          <Tabs onTabChange={setFilter} />
         </div>
-
         <div className="flex-grow rounded-2xl bg-gray-800/50 p-2">
             {loading && <p className="py-4 text-center text-gray-400">Loading incidents...</p>}
             {error && <p className="py-4 text-center text-red-400">Could not load incidents.</p>}
-            {!loading && filteredAccidents.length === 0 && (
+            {!loading && filteredAndSortedAccidents.length === 0 && (
                 <p className="py-4 text-center text-gray-400">No incidents found for this category.</p>
             )}
-            {filteredAccidents.map((accident) => (
+            {filteredAndSortedAccidents.map((accident) => (
                 <AccidentsDetails
                     key={accident.id}
                     accident={accident}

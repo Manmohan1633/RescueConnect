@@ -1,5 +1,3 @@
-// components/CameraCapture.jsx
-
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 const CameraCapture = ({ onCapture }) => {
@@ -8,17 +6,27 @@ const CameraCapture = ({ onCapture }) => {
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
 
-  // Safely attach the stream to the video element when the stream is ready
+  // Effect to handle the media stream lifecycle.
+  // This is the primary change for better resource management.
   useEffect(() => {
+    // If we have a stream, attach it to the video element.
     if (stream && videoRef.current) {
       videoRef.current.srcObject = stream;
     }
-  }, [stream]);
+
+    // The cleanup function runs when the component unmounts or when the `stream` dependency changes.
+    // It ensures that any existing stream is properly stopped.
+    return () => {
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [stream]); // The effect depends on the `stream` state.
 
   const startCamera = useCallback(async () => {
     // Clear any previous captures when starting the camera
     setCapturedImage(null);
-    if(onCapture) onCapture(null);
+    if (onCapture) onCapture(null);
 
     try {
       // Prioritize the back camera ('environment') for mobile devices
@@ -31,13 +39,6 @@ const CameraCapture = ({ onCapture }) => {
       alert("Could not access the camera. Please check permissions in your browser settings.");
     }
   }, [onCapture]);
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-  };
 
   const takePicture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -52,17 +53,19 @@ const CameraCapture = ({ onCapture }) => {
         const imageUrl = URL.createObjectURL(blob);
         setCapturedImage(imageUrl);
         const imageFile = new File([blob], `capture-${Date.now()}.jpg`, { type: 'image/jpeg' });
-        if(onCapture) onCapture(imageFile);
-      }, 'image/jpeg');
+        if (onCapture) onCapture(imageFile);
 
-      stopCamera();
+        // To stop the camera, we simply set the stream state to null.
+        // The useEffect hook will detect this change and run its cleanup function to stop the tracks.
+        setStream(null);
+      }, 'image/jpeg');
     }
   };
 
   return (
     <div className="w-full rounded-lg border bg-gray-50 p-4 text-center">
 
-      {/* --- Unified Preview Box (Slightly larger) --- */}
+      {/* --- Unified Preview Box --- */}
       <div className="flex h-80 w-full items-center justify-center rounded-lg border-2 border-dashed border-gray-300 bg-black overflow-hidden">
         {!stream && !capturedImage && (
           <p className="text-gray-400">Camera preview will appear here</p>
