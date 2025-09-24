@@ -20,7 +20,7 @@ export default function Tabs({ onTabChange }) {
 
   return (
     <nav
-      className="flex w-full rounded-lg bg-gray-100 p-1.5 dark:bg-gray-800"
+      className="flex w-full rounded-lg bg-gray-100 p-1.5 dark:bg-gray-900"
       aria-label="Tabs"
       role="tablist"
     >
@@ -34,7 +34,7 @@ export default function Tabs({ onTabChange }) {
               // Active state styles
               "bg-red-600 text-white shadow": activeTab === tab,
               // Inactive state styles
-              "text-gray-600 hover:bg-red-200 hover:text-red-700 dark:text-gray-400 dark:hover:bg-gray-700":
+              "text-gray-600 hover:bg-red-200 hover:text-red-700 dark:text-gray-100 dark:hover:bg-gray-700":
                 activeTab !== tab,
             }
           )}
