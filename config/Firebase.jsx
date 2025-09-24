@@ -21,14 +21,14 @@ import { getDatabase } from "firebase/database";
 */
 
 const firebaseConfig = {
-  apiKey: "AIzaSyATQnK1GiGabdnrFYu5L4JuEPkg2iN-gHw",
-  authDomain: "rescueconnect-cc2f7.firebaseapp.com",
-  databaseURL: "https://rescueconnect-cc2f7-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "rescueconnect-cc2f7",
-  storageBucket: "rescueconnect-cc2f7.firebasestorage.app",
-  messagingSenderId: "719789687790",
-  appId: "1:719789687790:web:efbc53970fd2e7471104ff",
-  measurementId: "G-0JCM34M29D"
+  apiKey: "",
+  authDomain: "",
+  databaseURL: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: "",
+  measurementId: ""
 };
 
 const app = initializeApp(firebaseConfig);
