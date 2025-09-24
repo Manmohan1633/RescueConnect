@@ -1,23 +1,23 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { collection, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
 
-import Sidebar from "../../components/accidentdashboard/Sidebar3"; // Ensure paths are correct
+// --- THIS IS THE FIX (Part 1) ---
+// We now import the single, reusable Sidebar component.
+import Sidebar from "../../components/accidentdashboard/Sidebar"; // Ensure this is the correct path
 import StatsCard from "../../components/accidentdashboard/StatsCard";
-import AccidentsDetails from "../../components/accidentdashboard/accidentDetails"; // The detail card for each accident
-import Tabs from "../../components/accidents/tabs"; // The filter tabs
+import AccidentsDetails from "../../components/accidentdashboard/accidentDetails";
+import Tabs from "../../components/accidents/tabs";
 
 // --- Custom Hook to Fetch and Manage All Accident Data ---
-// This keeps your data logic separate and reusable.
 const useAccidentsData = () => {
   const [accidents, setAccidents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   const fetchAccidents = async () => {
-    setLoading(true);
+    // No need to set loading to true on refresh for a smoother UI
     try {
       const db = getFirestore();
-      // Query to get all documents, ordered by the newest first
       const q = query(collection(db, "fire"), orderBy("datetime", "desc"));
       const querySnapshot = await getDocs(q);
       const newData = querySnapshot.docs.map((doc) => ({
@@ -29,7 +29,7 @@ const useAccidentsData = () => {
       console.error("Error fetching accidents:", err);
       setError(err);
     } finally {
-      setLoading(false);
+      if(loading) setLoading(false);
     }
   };
 
@@ -37,7 +37,6 @@ const useAccidentsData = () => {
     fetchAccidents();
   }, []);
 
-  // useMemo efficiently recalculates the counts only when the accidents list changes.
   const statusCounts = useMemo(() => {
     return accidents.reduce(
       (counts, acc) => {
@@ -58,48 +57,74 @@ const useAccidentsData = () => {
 export default function PoliceListPage() {
   const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
   const [filter, setFilter] = useState("All");
+  const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Memoize the filtered list for better performance
-  const filteredAccidents = useMemo(() => {
-    if (filter === "All") return accidents;
-    return accidents.filter((acc) => (acc.status || "NEW") === filter);
+  // --- THIS IS THE FIX (Part 2) ---
+  // We define the navigation links specifically for THIS page's sidebar.
+  const policeMenuItems = [
+    {
+      name: "Police Dashboard",
+      href: "/police", // The link to the main dashboard
+      icon: "https://img.icons8.com/ios-glyphs/40/ffffff/home-page--v1.png",
+    },
+    {
+      name: "Accident List",
+      href: "/police/list", // The link to this page itself
+      icon: "https://img.icons8.com/ios-filled/50/ffffff/traffic-accident.png",
+    },
+  ];
+  
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedDateTime = currentTime.toLocaleString('en-US', {
+    dateStyle: 'full',
+    timeStyle: 'medium',
+  });
+
+  const filteredAndSortedAccidents = useMemo(() => {
+    const statusOrder = { "NEW": 1, "PENDING": 2, "DONE": 3 };
+    const filterMap = { "new": "NEW", "pending": "PENDING", "completed": "DONE" };
+    const dbStatusFilter = filterMap[filter.toLowerCase()];
+    const filtered = filter.toLowerCase() === 'all'
+      ? accidents
+      : accidents.filter(acc => (acc.status || "NEW") === dbStatusFilter);
+
+    return [...filtered].sort((a, b) => {
+      const statusA = statusOrder[a.status || "NEW"] || 99;
+      const statusB = statusOrder[b.status || "NEW"] || 99;
+      return statusA - statusB;
+    });
   }, [accidents, filter]);
 
-  const formattedDate = new Date().toString();
-
   return (
-    <div className="flex h-screen w-full font-sans bg-gray-900 text-white">
-      <Sidebar />
+    <div className="flex h-screen w-full font-sans bg-gray-800 text-white">
+      {/* --- THIS IS THE FIX (Part 3) --- */}
+      {/* We pass the police-specific links to the Sidebar component. */}
+      <Sidebar menuItems={policeMenuItems} />
 
-      {/* Main Content Area */}
       <main className="flex flex-1 flex-col gap-6 p-6 overflow-y-auto">
-        
-        {/* Corrected Header */}
         <header>
           <h1 className="text-3xl font-semibold leading-loose text-red-400">
-            NGOs Accident List
+            Police Accident List
           </h1>
-          <p className="text-gray-400">{formattedDate}</p>
+          <p className="text-gray-400">{formattedDateTime}</p>
         </header>
-
-        {/* Stats Cards */}
         <div>
           <StatsCard counts={statusCounts} />
         </div>
-        
-        {/* Filtering Tabs */}
         <div>
-            <Tabs onTabChange={setFilter} />
+          <Tabs onTabChange={setFilter} />
         </div>
-
-        {/* --- Corrected Accident List Container --- */}
-        <div className="flex-grow rounded-2xl bg-gray-800/50 p-2">
+        <div className="flex-grow rounded-2xl bg-gray-900/50 p-2">
             {loading && <p className="py-4 text-center text-gray-400">Loading incidents...</p>}
             {error && <p className="py-4 text-center text-red-400">Could not load incidents.</p>}
-            {!loading && filteredAccidents.length === 0 && (
+            {!loading && filteredAndSortedAccidents.length === 0 && (
                 <p className="py-4 text-center text-gray-400">No incidents found for this category.</p>
             )}
-            {filteredAccidents.map((accident) => (
+            {filteredAndSortedAccidents.map((accident) => (
                 <AccidentsDetails
                     key={accident.id}
                     accident={accident}

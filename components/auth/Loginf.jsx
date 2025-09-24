@@ -61,7 +61,7 @@ export default function Login() {
         console.log(res);
         setUser(res.user);
         setLoading(false);
-        router.push("/fireforce");
+        router.push("/firebrigade");
       })
       .catch((err) => {
         console.log(err);

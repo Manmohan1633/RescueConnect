@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { collection, getDocs, getFirestore, query, orderBy } from "firebase/firestore";
 
-import Sidebar from "../../components/accidentdashboard/Sidebar"; // Ensure paths are correct
+// --- THIS IS THE FIX (Part 1) ---
+// We now import the single, reusable Sidebar component.
+import Sidebar from "../../components/accidentdashboard/Sidebar"; // Ensure this is the correct path
 import StatsCard from "../../components/accidentdashboard/StatsCard";
 import AccidentsDetails from "../../components/accidentdashboard/accidentDetails";
 import Tabs from "../../components/accidents/tabs";
@@ -13,7 +15,7 @@ const useAccidentsData = () => {
   const [error, setError] = useState(null);
 
   const fetchAccidents = async () => {
-    setLoading(true);
+    // No need to set loading to true on refresh for a smoother UI
     try {
       const db = getFirestore();
       const q = query(collection(db, "fire"), orderBy("datetime", "desc"));
@@ -27,7 +29,7 @@ const useAccidentsData = () => {
       console.error("Error fetching accidents:", err);
       setError(err);
     } finally {
-      setLoading(false);
+      if(loading) setLoading(false);
     }
   };
 
@@ -55,22 +57,28 @@ const useAccidentsData = () => {
 export default function PoliceListPage() {
   const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
   const [filter, setFilter] = useState("All");
-
-  // --- THIS IS THE FIX (Part 1) ---
-  // State for the live-updating time
   const [currentTime, setCurrentTime] = useState(new Date());
 
-  // Effect to update the time every second
+  // --- THIS IS THE FIX (Part 2) ---
+  // We define the navigation links specifically for THIS page's sidebar.
+  const policeMenuItems = [
+    {
+      name: "Police Dashboard",
+      href: "/police", // The link to the main dashboard
+      icon: "https://img.icons8.com/ios-glyphs/40/ffffff/home-page--v1.png",
+    },
+    {
+      name: "Accident List",
+      href: "/police/list", // The link to this page itself
+      icon: "https://img.icons8.com/ios-filled/50/ffffff/traffic-accident.png",
+    },
+  ];
+  
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000); // Update every second
-
-    // Cleanup function to stop the timer when the component is removed
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(timer);
-  }, []); // Empty array ensures this effect runs only once on mount
+  }, []);
 
-  // Format the date and time for a user-friendly display
   const formattedDateTime = currentTime.toLocaleString('en-US', {
     dateStyle: 'full',
     timeStyle: 'medium',
@@ -78,11 +86,7 @@ export default function PoliceListPage() {
 
   const filteredAndSortedAccidents = useMemo(() => {
     const statusOrder = { "NEW": 1, "PENDING": 2, "DONE": 3 };
-    const filterMap = {
-        "new": "NEW",
-        "pending": "PENDING",
-        "completed": "DONE"
-    };
+    const filterMap = { "new": "NEW", "pending": "PENDING", "completed": "DONE" };
     const dbStatusFilter = filterMap[filter.toLowerCase()];
     const filtered = filter.toLowerCase() === 'all'
       ? accidents
@@ -96,15 +100,16 @@ export default function PoliceListPage() {
   }, [accidents, filter]);
 
   return (
-    <div className="flex h-screen w-full font-sans bg-gray-900 text-white">
-      <Sidebar />
+    <div className="flex h-screen w-full font-sans bg-gray-800 text-white">
+      {/* --- THIS IS THE FIX (Part 3) --- */}
+      {/* We pass the police-specific links to the Sidebar component. */}
+      <Sidebar menuItems={policeMenuItems} />
+
       <main className="flex flex-1 flex-col gap-6 p-6 overflow-y-auto">
         <header>
           <h1 className="text-3xl font-semibold leading-loose text-red-400">
             Police Accident List
           </h1>
-          {/* --- THIS IS THE FIX (Part 2) --- */}
-          {/* Display the newly formatted, live-updating date and time */}
           <p className="text-gray-400">{formattedDateTime}</p>
         </header>
         <div>
@@ -113,7 +118,7 @@ export default function PoliceListPage() {
         <div>
           <Tabs onTabChange={setFilter} />
         </div>
-        <div className="flex-grow rounded-2xl bg-gray-800/50 p-2">
+        <div className="flex-grow rounded-2xl bg-gray-900/50 p-2">
             {loading && <p className="py-4 text-center text-gray-400">Loading incidents...</p>}
             {error && <p className="py-4 text-center text-red-400">Could not load incidents.</p>}
             {!loading && filteredAndSortedAccidents.length === 0 && (

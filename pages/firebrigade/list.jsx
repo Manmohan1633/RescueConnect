@@ -53,23 +53,23 @@ const useAccidentsData = () => {
   return { accidents, loading, error, statusCounts, refreshAccidents: fetchAccidents };
 };
 
-// --- Main Ambulance Accident List Page Component ---
-export default function AmbulanceListPage() {
+// --- Main Police Accident List Page Component ---
+export default function PoliceListPage() {
   const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
   const [filter, setFilter] = useState("All");
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // --- THIS IS THE FIX (Part 2) ---
   // We define the navigation links specifically for THIS page's sidebar.
-  const ambulanceMenuItems = [
+  const firebrigadeMenuItems = [
     {
-      name: "Ambulance Dashboard",
-      href: "/ambulance", // The link to the main dashboard
+      name: "Police Dashboard",
+      href: "/firebrigade", // The link to the main dashboard
       icon: "https://img.icons8.com/ios-glyphs/40/ffffff/home-page--v1.png",
     },
     {
       name: "Accident List",
-      href: "/ambulance/list", // The link to this page itself
+      href: "/firebrigade/list", // The link to this page itself
       icon: "https://img.icons8.com/ios-filled/50/ffffff/traffic-accident.png",
     },
   ];
@@ -102,13 +102,13 @@ export default function AmbulanceListPage() {
   return (
     <div className="flex h-screen w-full font-sans bg-gray-800 text-white">
       {/* --- THIS IS THE FIX (Part 3) --- */}
-      {/* We pass the ambulance-specific links to the Sidebar component. */}
-      <Sidebar menuItems={ambulanceMenuItems} />
+      {/* We pass the firebrigade-specific links to the Sidebar component. */}
+      <Sidebar menuItems={firebrigadeMenuItems} />
 
       <main className="flex flex-1 flex-col gap-6 p-6 overflow-y-auto">
         <header>
           <h1 className="text-3xl font-semibold leading-loose text-red-400">
-            Ambulance Accident List
+            Police Accident List
           </h1>
           <p className="text-gray-400">{formattedDateTime}</p>
         </header>

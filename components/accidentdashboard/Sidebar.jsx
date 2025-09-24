@@ -44,7 +44,7 @@ export default function Sidebar({ menuItems = [] }) {
       
       {/* Logo */}
       <Link href="/" className="p-2">
-        <img src="/logo-icon.png" alt="Logo" className="w-full rounded-lg" />
+        <img src="/logo.png" alt="Logo" className="w-full rounded-lg" />
       </Link>
       
       {/* Navigation Links are now built from the 'menuItems' prop passed by the parent page */}

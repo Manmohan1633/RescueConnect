@@ -66,7 +66,7 @@ const DashboardHeader = ({ title }) => {
     return (
         <header>
             <h1 className="text-3xl font-semibold leading-loose text-red-400">{title}</h1>
-            <p className="text-gray-400">{formattedDateTime}</p>
+            <p className="text-gray-500">{formattedDateTime}</p>
         </header>
     );
 };

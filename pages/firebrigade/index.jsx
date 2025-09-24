@@ -71,21 +71,21 @@ const DashboardHeader = ({ title }) => {
     );
 };
 
-// --- Main Ambulance Dashboard Component ---
-export default function AmbulanceDashboard() {
+// --- Main FireBrigade Dashboard Component ---
+export default function FireBrigadeDashboard() {
   const { accidents, loading, error, statusCounts, refreshAccidents } = useAccidentsData();
   
   // --- THIS IS THE FIX (Part 2) ---
-  // Define the navigation links specifically for the Ambulance dashboard
-  const ambulanceMenuItems = [
+  // Define the navigation links specifically for the FireBrigade dashboard
+  const firebrigadeMenuItems = [
     {
-      name: "Ambulance Dashboard",
-      href: "/ambulance",
+      name: "FireBrigade Dashboard",
+      href: "/firebrigade",
       icon: "https://img.icons8.com/ios-glyphs/40/ffffff/home-page--v1.png",
     },
     {
       name: "Accident List",
-      href: "/ambulance/list",
+      href: "/firebrigade/list",
       icon: "https://img.icons8.com/ios-filled/50/ffffff/traffic-accident.png",
     },
   ];
@@ -103,11 +103,11 @@ export default function AmbulanceDashboard() {
 
   return (
     <div className="flex h-screen w-full font-sans bg-slate-800 text-white">
-      {/* Pass the ambulance-specific links to the reusable Sidebar */}
-      <Sidebar menuItems={ambulanceMenuItems} />
+      {/* Pass the firebrigade-specific links to the reusable Sidebar */}
+      <Sidebar menuItems={firebrigadeMenuItems} />
 
       <main className="flex flex-1 flex-col gap-6 p-6 overflow-hidden">
-        <DashboardHeader title="Ambulance Dashboard" />
+        <DashboardHeader title="FireBrigade Dashboard" />
         
         <div>
           <StatsCard counts={statusCounts} />
@@ -125,7 +125,7 @@ export default function AmbulanceDashboard() {
             accidents={sortedAccidentsList} 
             loading={loading} 
             onUpdate={refreshAccidents}
-            listPageUrl="/ambulance/list" 
+            listPageUrl="/firebrigade/list" 
         />
       </aside>
     </div>
